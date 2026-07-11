@@ -35,7 +35,8 @@ export function useForcedRiddle() {
 
       const difficulties: Array<"easy" | "medium" | "hard"> = ["easy", "medium", "hard"];
       const randomDifficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
-      drawRiddle(randomDifficulty);
+      // For forced riddles, pick random category 50/50
+      drawRiddle(randomDifficulty, Math.random() < 0.5 ? "tech" : "non-tech");
 
       return true;
     }

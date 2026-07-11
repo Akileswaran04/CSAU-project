@@ -6,7 +6,7 @@ interface PanelShellProps {
   className?: string;
   title?: string;
   action?: ReactNode;
-  variant?: "default" | "tinted" | "elevated";
+  variant?: "default" | "tinted" | "elevated" | "solid";
 }
 
 export function PanelShell({
@@ -21,6 +21,8 @@ export function PanelShell({
     tinted: "glass-panel-tinted",
     elevated:
       "bg-bg-elevated/80 backdrop-blur-glass border border-glass-border rounded-2xl shadow-glass",
+    solid:
+      "bg-bg-surface border border-white/[0.08] rounded-2xl shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_8px_24px_-12px_rgba(0,0,0,0.5)]",
   };
 
   return (
@@ -29,6 +31,11 @@ export function PanelShell({
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", damping: 24, stiffness: 300 }}
       className={`${variantClasses[variant]} ${className}`}
+      style={
+        variant === "solid" && title
+          ? { borderLeft: "2px solid var(--color-accent-primary)" }
+          : undefined
+      }
     >
       {(title || action) && (
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04]">

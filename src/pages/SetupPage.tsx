@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit3, Trash2, Lock, Users } from "lucide-react";
-import { useGameStore } from "../store/useGameStore";
+import { useGameStore, TEAM_ICONS, type TeamIcon } from "../store/useGameStore";
+import { TeamIconDisplay } from "../components/shared/TeamIconDisplay";
 import { PanelShell } from "../components/shared/PanelShell";
 import { Modal } from "../components/shared/Modal";
 import { ConfirmDialog } from "../components/shared/ConfirmDialog";
@@ -35,6 +36,7 @@ export function SetupPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTeam, setEditingTeam] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState(TEAM_COLORS[0].value);
+  const [selectedIcon, setSelectedIcon] = useState<TeamIcon>("sword");
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const isLocked = gamePhase !== "idle";
@@ -53,6 +55,7 @@ export function SetupPage() {
     if (isLocked) return;
     setEditingTeam(null);
     setSelectedColor(TEAM_COLORS[0].value);
+    setSelectedIcon("sword");
     reset({ name: "", participant1: "", participant2: "" });
     setIsModalOpen(true);
   };
@@ -63,6 +66,7 @@ export function SetupPage() {
     if (!team) return;
     setEditingTeam(teamId);
     setSelectedColor(team.color);
+    setSelectedIcon(team.icon);
     setValue("name", team.name);
     setValue("participant1", team.participants[0]?.name || "");
     setValue("participant2", team.participants[1]?.name || "");
@@ -83,6 +87,7 @@ export function SetupPage() {
         name: data.name,
         participants: [{ name: data.participant1 }, { name: data.participant2 }],
         color: selectedColor,
+        icon: selectedIcon,
       });
       toast.success(`Team "${data.name}" updated`);
     } else {
@@ -90,6 +95,7 @@ export function SetupPage() {
         name: data.name,
         participants: [{ name: data.participant1 }, { name: data.participant2 }],
         color: selectedColor,
+        icon: selectedIcon,
       });
       toast.success(`Team "${data.name}" registered`);
     }
@@ -174,14 +180,14 @@ export function SetupPage() {
                   <PanelShell variant="tinted">
                     <div className="flex items-start gap-4">
                       <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-display font-bold text-lg shrink-0"
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
                         style={{
                           backgroundColor: team.color + "20",
                           border: `1px solid ${team.color}40`,
                           color: team.color,
                         }}
                       >
-                        {team.name.charAt(0).toUpperCase()}
+                        <TeamIconDisplay icon={team.icon} size={22} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -300,6 +306,42 @@ export function SetupPage() {
                   }}
                   title={color.label}
                 />
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-display font-medium text-white/60 mb-2">
+              Team Icon
+            </label>
+            <div className="flex gap-2">
+              {TEAM_ICONS.map((iconName) => (
+                <button
+                  key={iconName}
+                  type="button"
+                  onClick={() => setSelectedIcon(iconName)}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                    selectedIcon === iconName
+                      ? "ring-2 ring-accent-primary scale-110"
+                      : "hover:scale-105 hover:ring-1 hover:ring-white/20"
+                  }`}
+                  style={{
+                    backgroundColor: selectedIcon === iconName
+                      ? "var(--color-accent-primary-muted)"
+                      : "var(--color-bg-elevated)",
+                    border: `2px solid ${
+                      selectedIcon === iconName
+                        ? "var(--color-accent-primary)"
+                        : "rgba(255,255,255,0.06)"
+                    }`,
+                    color: selectedIcon === iconName
+                      ? "var(--color-accent-primary)"
+                      : "var(--color-fg-subtle)",
+                  }}
+                  title={iconName}
+                >
+                  <TeamIconDisplay icon={iconName} size={16} />
+                </button>
               ))}
             </div>
           </div>

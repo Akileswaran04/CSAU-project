@@ -1,6 +1,7 @@
 import { Dices } from "lucide-react";
 import { Dice3D } from "./Dice3D";
 import { useGameStore } from "../../store/useGameStore";
+import { TeamIconDisplay } from "../shared/TeamIconDisplay";
 
 interface DicePanelProps {
   onRoll: () => void;
@@ -51,10 +52,20 @@ export function DicePanel({ onRoll, isDisabled, variant = "default" }: DicePanel
         {isRolling ? "Rolling..." : "Roll Dice"}
       </button>
       {currentTeam && gamePhase === "active" && (
-        <p className="text-white/35 text-xs mt-2 font-display">
-          Current turn:{" "}
+        <div className="flex items-center gap-1.5 text-white/35 text-xs mt-2 font-display">
+          <span>Current turn:</span>
+          <div
+            className="w-4 h-4 rounded flex items-center justify-center"
+            style={{
+              backgroundColor: currentTeam.color + "20",
+              border: `1px solid ${currentTeam.color}40`,
+              color: currentTeam.color,
+            }}
+          >
+            <TeamIconDisplay icon={currentTeam.icon} size={8} />
+          </div>
           <span className="text-white font-medium">{currentTeam.name}</span>
-        </p>
+        </div>
       )}
     </div>
   );

@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { type Team } from "../../store/useGameStore";
+import { TeamIconDisplay } from "../shared/TeamIconDisplay";
 import { boardCells } from "../../data/boardConfig";
 
 /* ─── Particle burst on arrival ─── */
@@ -52,7 +53,6 @@ export const TeamToken = memo(function TeamToken({ team, targetCellIndex, teamCo
   const isMovingRef = useRef(false);
   const particleBurstRef = useRef(0);
   const particleFiredRef = useRef(false);
-  const hoverRef = useRef(false);
 
   // Calculate target position
   const targetCell = boardCells[Math.min(targetCellIndex, boardCells.length - 1)];
@@ -122,13 +122,6 @@ export const TeamToken = memo(function TeamToken({ team, targetCellIndex, teamCo
       }
     }
 
-    // ─── Hover highlight ───
-    if (meshRef.current) {
-      const mat = meshRef.current.material as THREE.MeshStandardMaterial;
-      const targetEmissive = hoverRef.current ? 0.8 : isMovingRef.current ? 0.5 : 0.3;
-      mat.emissiveIntensity += (targetEmissive - mat.emissiveIntensity) * 0.08;
-    }
-
     // ─── Particle burst on arrival ───
     if (particlesRef.current) {
       const pd = particleDataRef.current;
@@ -178,8 +171,7 @@ export const TeamToken = memo(function TeamToken({ team, targetCellIndex, teamCo
     <group
       ref={groupRef}
       position={[targetCell.position.x + xOffset, 0, targetCell.position.z + zOffset]}
-      onPointerEnter={() => { hoverRef.current = true; }}
-      onPointerLeave={() => { hoverRef.current = false; }}
+
     >
       {/* Pulse ring */}
       <mesh
@@ -225,18 +217,28 @@ export const TeamToken = memo(function TeamToken({ team, targetCellIndex, teamCo
         />
       </points>
 
-      {/* Token sphere */}
-      <mesh ref={meshRef} position={[0, 0.3, 0]}>
-        <sphereGeometry args={[0.25, 24, 24]} />
-        <meshStandardMaterial
-          color={team.color}
-          metalness={0.8}
-          roughness={0.1}
-          emissive={team.color}
-          emissiveIntensity={0.3}
-          envMapIntensity={0.8}
-        />
+      {/* Token float anchor (invisible) — keep meshRef for useFrame position/bob */}
+      <mesh ref={meshRef} position={[0, 0.3, 0]} visible={false}>
+        <planeGeometry args={[0.01, 0.01]} />
+        <meshBasicMaterial transparent opacity={0} />
       </mesh>
+
+      {/* Token icon badge — always faces camera via Html billboard */}
+      <Html center position={[0, 0.3, 0]}>
+        <div
+          className="flex items-center justify-center"
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            backgroundColor: team.color,
+            color: "#fff",
+            border: `2px solid ${team.color}80`,
+          }}
+        >
+          <TeamIconDisplay icon={team.icon} size={16} />
+        </div>
+      </Html>
 
       {/* Team name label */}
       <Html center position={[0, 0.75, 0]}>

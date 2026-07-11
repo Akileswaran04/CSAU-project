@@ -3,9 +3,12 @@ import { persist } from "zustand/middleware";
 import riddlesData from "../data/riddles.json";
 import type { Difficulty } from "../lib/scoring";
 
+export type RiddleCategory = "tech" | "non-tech";
+
 export interface Riddle {
   id: string;
   difficulty: Difficulty;
+  category: RiddleCategory;
   question: string;
   answer: string;
 }
@@ -19,7 +22,7 @@ export interface RiddleState {
   forcedTeamId: string | null;
 
   // Actions
-  drawRiddle: (difficulty: Difficulty) => Riddle | null;
+  drawRiddle: (difficulty: Difficulty, category?: RiddleCategory) => Riddle | null;
   setCurrentRiddle: (riddle: Riddle | null) => void;
   setCurrentDifficulty: (difficulty: Difficulty | null) => void;
   setIsForcedRiddle: (forced: boolean) => void;
@@ -47,15 +50,28 @@ export const useRiddleStore = create<RiddleState>()(
       isForcedRiddle: false,
       forcedTeamId: null,
 
-      drawRiddle: (difficulty) => {
+      drawRiddle: (difficulty, category) => {
         const state = get();
+
+        // If no category specified, pick randomly 50/50
+        const effectiveCategory = category ?? (Math.random() < 0.5 ? "tech" : "non-tech");
+
         const available = state.riddles.filter(
           (r) =>
-            r.difficulty === difficulty && !state.usedRiddleIds.includes(r.id)
+            r.difficulty === difficulty &&
+            r.category === effectiveCategory &&
+            !state.usedRiddleIds.includes(r.id)
         );
 
-        // If no available riddles of this difficulty, reshuffle
-        const pool = available.length > 0 ? available : state.riddles.filter((r) => r.difficulty === difficulty);
+        // If no available riddles for this difficulty+category, fall back to any difficulty+category
+        let pool = available.length > 0
+          ? available
+          : state.riddles.filter((r) => r.difficulty === difficulty && r.category === effectiveCategory);
+
+        if (pool.length === 0) {
+          // Extreme fallback: any unused riddle of this difficulty
+          pool = state.riddles.filter((r) => r.difficulty === difficulty);
+        }
 
         if (pool.length === 0) return null;
 

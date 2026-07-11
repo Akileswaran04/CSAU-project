@@ -2,6 +2,7 @@ import { useSettingsStore } from "../store/useSettingsStore";
 import { motion } from "framer-motion";
 import { Monitor, Eye, EyeOff, Sun, Moon } from "lucide-react";
 import { PanelShell } from "../components/shared/PanelShell";
+import { Toggle } from "../components/shared/Toggle";
 import { TunnelBackground } from "../components/shared/TunnelBackground";
 
 export function SettingsPage() {
@@ -34,11 +35,11 @@ export function SettingsPage() {
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center"
             style={{
-              background: "var(--color-glass-jade-15)",
-              border: "1px solid var(--color-glass-jade-25)",
+              background: "var(--color-bg-surface)",
+              border: "1px solid var(--color-accent-primary-muted)",
             }}
           >
-            <Monitor size={20} className="text-jade" />
+            <Monitor size={20} style={{ color: "var(--color-accent-primary)" }} />
           </div>
           <div>
             <h1 className="text-3xl font-display font-bold" style={{ color: "var(--color-fg-default)" }}>
@@ -52,45 +53,58 @@ export function SettingsPage() {
 
         <div className="space-y-4">
           {/* Background intensity */}
-          <PanelShell title="Background Effects" variant="tinted">
+          <PanelShell title="Background Effects" variant="solid">
             <div className="space-y-6">
-              {/* Preset buttons */}
+              {/* Preset buttons — flat segmented control */}
               <div className="flex gap-2">
-                {presetButtons.map(({ label, value, icon: Icon }) => (
-                  <button
-                    key={value}
-                    onClick={() => setBackgroundIntensity(value)}
-                    className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-xl transition-all ${
-                      backgroundIntensity === value
-                        ? "glass-panel-tinted"
-                        : "glass-panel hover:bg-white/[0.03]"
-                    }`}
-                    style={
-                      backgroundIntensity === value
-                        ? {
-                            borderColor: "var(--color-glass-jade-30)",
-                            background: "var(--color-glass-jade-08)",
-                          }
-                        : undefined
-                    }
-                  >
-                    <Icon
-                      size={20}
-                      className={
-                        backgroundIntensity === value
-                          ? "text-jade"
-                          : ""
-                      }
-                      style={backgroundIntensity !== value ? { color: "var(--color-fg-subtle)" } : undefined}
-                    />
-                    <span
-                      className="text-xs font-display font-medium"
-                      style={{ color: backgroundIntensity === value ? "var(--color-fg-default)" : "var(--color-fg-muted)" }}
+                {presetButtons.map(({ label, value, icon: Icon }) => {
+                  const isActive = backgroundIntensity === value;
+                  return (
+                    <button
+                      key={value}
+                      onClick={() => setBackgroundIntensity(value)}
+                      className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-xl transition-all cursor-pointer`}
+                      style={{
+                        background: "var(--color-bg-elevated)",
+                        border: isActive
+                          ? "2px solid var(--color-accent-primary)"
+                          : "1px solid rgba(255,255,255,0.06)",
+                        boxShadow: isActive
+                          ? "0 0 20px var(--color-accent-primary-muted)"
+                          : "none",
+                      }}
+                      onPointerEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.04)";
+                        }
+                      }}
+                      onPointerLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = "";
+                        }
+                      }}
                     >
-                      {label}
-                    </span>
-                  </button>
-                ))}
+                      <Icon
+                        size={20}
+                        style={{
+                          color: isActive
+                            ? "var(--color-accent-primary)"
+                            : "var(--color-fg-subtle)",
+                        }}
+                      />
+                      <span
+                        className="text-xs font-display font-medium"
+                        style={{
+                          color: isActive
+                            ? "var(--color-fg-default)"
+                            : "var(--color-fg-muted)",
+                        }}
+                      >
+                        {label}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Slider */}
@@ -100,23 +114,28 @@ export function SettingsPage() {
                     Intensity
                   </label>
                   <div className="flex items-center gap-2">
+                    {/* Value pill — solid bg-elevated with colored dot */}
                     <motion.div
                       key={intensityLabel}
                       initial={{ opacity: 0, y: -8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="px-3 py-1 rounded-lg text-xs font-mono font-bold"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold"
                       style={{
-                        background: isOff
-                          ? "var(--color-accent-danger-muted)"
-                          : "var(--color-accent-primary-muted)",
-                        color: isOff ? "var(--color-accent-danger)" : "var(--color-accent-primary)",
-                        border: `1px solid ${
-                          isOff
-                            ? "var(--color-accent-danger-muted)"
-                            : "var(--color-accent-primary-muted)"
-                        }`,
+                        background: "var(--color-bg-elevated)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                        color: isOff
+                          ? "var(--color-accent-danger)"
+                          : "var(--color-accent-primary)",
                       }}
                     >
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{
+                          backgroundColor: isOff
+                            ? "var(--color-accent-danger)"
+                            : "var(--color-accent-primary)",
+                        }}
+                      />
                       {intensityLabel}
                     </motion.div>
                     <span className="text-xs font-mono w-8 text-right" style={{ color: "var(--color-fg-subtle)" }}>
@@ -134,9 +153,10 @@ export function SettingsPage() {
                     onChange={(e) =>
                       setBackgroundIntensity(Number(e.target.value))
                     }
-                    className="w-full h-2 rounded-full appearance-none cursor-pointer bg-white/[0.06] accent-jade"
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
                     style={{
-                      background: `linear-gradient(to right, var(--color-jade) ${backgroundIntensity}%, rgba(255,255,255,0.06) ${backgroundIntensity}%)`,
+                      background: `linear-gradient(to right, var(--color-accent-primary) ${backgroundIntensity}%, rgba(255,255,255,0.06) ${backgroundIntensity}%)`,
+                      accentColor: "var(--color-accent-primary)",
                     }}
                   />
                   {/* Tick marks */}
@@ -165,7 +185,7 @@ export function SettingsPage() {
                     border: "1px solid rgba(255,255,255,0.04)",
                   }}
                 >
-                  {/* Simulated blobs at current intensity */}
+                  {/* Simulated blobs at current intensity — using accent tokens */}
                   {!isOff && (
                     <div className="absolute inset-0">
                       <div
@@ -173,7 +193,8 @@ export function SettingsPage() {
                         style={{
                           top: "15%",
                           left: "10%",
-                          background: `rgba(47, 217, 168, ${0.05 * (backgroundIntensity / 100)})`,
+                          background: `var(--color-accent-primary-glow)`,
+                          opacity: 0.05 * (backgroundIntensity / 100),
                           transform: "translate(-30%, -30%)",
                         }}
                       />
@@ -182,7 +203,8 @@ export function SettingsPage() {
                         style={{
                           bottom: "10%",
                           right: "15%",
-                          background: `rgba(198, 241, 53, ${0.025 * (backgroundIntensity / 100)})`,
+                          background: `var(--color-accent-success-muted)`,
+                          opacity: backgroundIntensity / 100,
                           transform: "translate(30%, 30%)",
                         }}
                       />
@@ -191,7 +213,8 @@ export function SettingsPage() {
                         style={{
                           top: "50%",
                           left: "50%",
-                          background: `rgba(225, 29, 60, ${0.02 * (backgroundIntensity / 100)})`,
+                          background: `var(--color-accent-danger-muted)`,
+                          opacity: backgroundIntensity / 100,
                           transform: "translate(-50%, -50%)",
                         }}
                       />
@@ -207,8 +230,14 @@ export function SettingsPage() {
                 </div>
               </div>
 
-              {/* Performance note */}
-              <div className="flex items-start gap-2 p-3 rounded-xl" style={{ background: "var(--color-bg-elevated)", borderLeft: "2px solid var(--color-accent-success)" }}>
+              {/* Performance note — solid bg-elevated + colored left border */}
+              <div
+                className="flex items-start gap-2 p-3 rounded-xl"
+                style={{
+                  background: "var(--color-bg-elevated)",
+                  borderLeft: "2px solid var(--color-accent-success)",
+                }}
+              >
                 <p className="text-xs leading-relaxed" style={{ color: "var(--color-fg-muted)" }}>
                   The animated background uses a single canvas with
                   requestAnimationFrame. Reducing intensity lowers GPU fill-rate
@@ -219,77 +248,89 @@ export function SettingsPage() {
           </PanelShell>
 
           {/* Theme toggle */}
-          <PanelShell title="Appearance" variant="tinted">
+          <PanelShell title="Appearance" variant="solid">
             <div className="space-y-4">
               <p className="text-sm font-display" style={{ color: "var(--color-fg-muted)" }}>
                 Choose your visual theme.
               </p>
+
+              {/* Flat segmented control for theme */}
               <div className="flex gap-2">
-                <button
-                  onClick={() => setTheme("dark")}
-                  className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-xl transition-all ${
-                    theme === "dark"
-                      ? "glass-panel-tinted"
-                      : "glass-panel hover:bg-white/[0.03]"
-                  }`}
-                  style={
-                    theme === "dark"
-                      ? {
-                          borderColor: "var(--color-glass-jade-30)",
-                          background: "var(--color-glass-jade-08)",
+                {([
+                  { value: "dark" as const, label: "Dark", icon: Moon },
+                  { value: "light" as const, label: "Light", icon: Sun },
+                ]).map(({ value, label, icon: Icon }) => {
+                  const isActive = theme === value;
+                  return (
+                    <button
+                      key={value}
+                      onClick={() => setTheme(value)}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 rounded-xl transition-all cursor-pointer"
+                      style={{
+                        background: "var(--color-bg-elevated)",
+                        border: isActive
+                          ? "2px solid var(--color-accent-primary)"
+                          : "1px solid rgba(255,255,255,0.06)",
+                        boxShadow: isActive
+                          ? "0 0 20px var(--color-accent-primary-muted)"
+                          : "none",
+                      }}
+                      onPointerEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.04)";
                         }
-                      : undefined
-                  }
-                >
-                  <Moon
-                    size={20}
-                    className={
-                      theme === "dark" ? "text-jade" : ""
-                    }
-                    style={theme !== "dark" ? { color: "var(--color-fg-subtle)" } : undefined}
-                  />
-                  <span
-                    className="text-xs font-display font-medium"
-                    style={{ color: theme === "dark" ? "var(--color-fg-default)" : "var(--color-fg-muted)" }}
-                  >
-                    Dark
-                  </span>
-                </button>
-                <button
-                  onClick={() => setTheme("light")}
-                  className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-xl transition-all ${
-                    theme === "light"
-                      ? "glass-panel-tinted"
-                      : "glass-panel hover:bg-white/[0.03]"
-                  }`}
-                  style={
-                    theme === "light"
-                      ? {
-                          borderColor: "var(--color-glass-jade-25)",
-                          background: "var(--color-glass-jade-08)",
+                      }}
+                      onPointerLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = "";
                         }
-                      : undefined
-                  }
-                >
-                  <Sun
-                    size={20}
-                    className={
-                      theme === "light" ? "text-jade" : ""
-                    }
-                    style={theme !== "light" ? { color: "var(--color-fg-subtle)" } : undefined}
-                  />
-                  <span
-                    className="text-xs font-display font-medium"
-                    style={{ color: theme === "light" ? "var(--color-fg-default)" : "var(--color-fg-muted)" }}
-                  >
-                    Light
-                  </span>
-                </button>
+                      }}
+                    >
+                      <Icon
+                        size={20}
+                        style={{
+                          color: isActive
+                            ? "var(--color-accent-primary)"
+                            : "var(--color-fg-subtle)",
+                        }}
+                      />
+                      <span
+                        className="text-xs font-display font-medium"
+                        style={{
+                          color: isActive
+                            ? "var(--color-fg-default)"
+                            : "var(--color-fg-muted)",
+                        }}
+                      >
+                        {label}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-              <div className="flex items-start gap-2 p-3 rounded-xl" style={{ background: "var(--color-bg-elevated)", borderLeft: "2px solid var(--color-jade)" }}>
+
+              {/* Theme note — solid callout */}
+              <div
+                className="flex items-start gap-2 p-3 rounded-xl"
+                style={{
+                  background: "var(--color-bg-elevated)",
+                  borderLeft: "2px solid var(--color-accent-primary)",
+                }}
+              >
                 <p className="text-xs leading-relaxed" style={{ color: "var(--color-fg-muted)" }}>
-                  Dark mode for immersive low-light sessions with deep charcoal and jade accents. Light mode for a warm, paper-toned daytime theme.
+                  Dark mode for immersive low-light sessions with deep charcoal and blue accents.
+                  Light mode for a warm, paper-toned daytime theme.
                 </p>
+              </div>
+
+              {/* Future settings toggle placeholder */}
+              <div className="pt-2 border-t border-white/[0.04]">
+                <Toggle
+                  checked={theme === "dark"}
+                  onChange={(v) => setTheme(v ? "dark" : "light")}
+                  label="Dark mode"
+                  description="Toggle between dark and light themes"
+                />
               </div>
             </div>
           </PanelShell>

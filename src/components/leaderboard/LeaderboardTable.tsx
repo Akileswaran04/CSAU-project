@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Brain, Target, AlertTriangle } from "lucide-react";
 import { useGameStore, type Team } from "../../store/useGameStore";
+import { TeamIconDisplay } from "../shared/TeamIconDisplay";
 import { PanelShell } from "../shared/PanelShell";
 import { RULES } from "../../data/boardConfig";
 import {
@@ -158,9 +159,15 @@ function TeamRow({ team, rank }: { team: Team; rank: number }) {
       <RankBadge rank={rank} />
 
       <div
-        className="w-3 h-3 rounded-full shrink-0"
-        style={{ backgroundColor: team.color }}
-      />
+        className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+        style={{
+          backgroundColor: team.color + "20",
+          border: `1px solid ${team.color}40`,
+          color: team.color,
+        }}
+      >
+        <TeamIconDisplay icon={team.icon} size={16} />
+      </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
@@ -300,7 +307,7 @@ export function LeaderboardFullPage() {
                       color: team.color,
                     }}
                   >
-                    {team.name.charAt(0)}
+                    <TeamIconDisplay icon={team.icon} size={26} />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">

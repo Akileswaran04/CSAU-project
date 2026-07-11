@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, SkipForward, Timer as TimerIcon, Eye, EyeOff } from "lucide-react";
+import { Check, X, SkipForward, Timer as TimerIcon, Eye, EyeOff, Cpu, BookOpen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -290,9 +290,35 @@ export function RiddleModal() {
                   <p className="text-white/40 text-sm">Current turn</p>
                 </div>
               </div>
-              <Badge variant={currentDifficulty} size="lg">
-                {currentDifficulty.toUpperCase()}
-              </Badge>
+              <div className="flex items-center gap-2">
+                {/* Category badge */}
+                <div
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-display font-semibold uppercase tracking-wider"
+                  style={{
+                    background: currentRiddle.category === "tech"
+                      ? "rgba(76, 141, 255, 0.12)"
+                      : "rgba(198, 241, 53, 0.12)",
+                    color: currentRiddle.category === "tech"
+                      ? "var(--color-accent-primary)"
+                      : "var(--color-accent-success)",
+                    border: `1px solid ${
+                      currentRiddle.category === "tech"
+                        ? "rgba(76, 141, 255, 0.25)"
+                        : "rgba(198, 241, 53, 0.25)"
+                    }`,
+                  }}
+                >
+                  {currentRiddle.category === "tech" ? (
+                    <Cpu size={12} />
+                  ) : (
+                    <BookOpen size={12} />
+                  )}
+                  {currentRiddle.category === "tech" ? "Tech" : "Wordplay"}
+                </div>
+                <Badge variant={currentDifficulty} size="lg">
+                  {currentDifficulty.toUpperCase()}
+                </Badge>
+              </div>
             </div>
 
             {/* Timer */}

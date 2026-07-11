@@ -261,7 +261,7 @@ export function BoardPage() {
 
       if (!isForced && landingCell?.type === "riddle" && landingCell.difficulty) {
         setTimeout(() => {
-          drawRiddle(landingCell.difficulty!);
+          drawRiddle(landingCell.difficulty!, Math.random() < 0.5 ? "tech" : "non-tech");
           setIsRiddleOpen(true);
         }, 500);
       } else if (isForced) {

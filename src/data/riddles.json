@@ -2,145 +2,169 @@
   {
     "id": "e1",
     "difficulty": "easy",
+    "category": "non-tech",
     "question": "What has keys but can't open locks?",
     "answer": "A piano"
   },
   {
     "id": "e2",
     "difficulty": "easy",
+    "category": "non-tech",
     "question": "What gets wetter the more it dries?",
     "answer": "A towel"
   },
   {
     "id": "e3",
     "difficulty": "easy",
+    "category": "non-tech",
     "question": "What can travel around the world while staying in a corner?",
     "answer": "A stamp"
   },
   {
     "id": "e4",
     "difficulty": "easy",
+    "category": "non-tech",
     "question": "What has a head and a tail but no body?",
     "answer": "A coin"
   },
   {
     "id": "e5",
     "difficulty": "easy",
-    "question": "What building has the most stories?",
-    "answer": "The library"
+    "category": "tech",
+    "question": "What does HTML stand for?",
+    "answer": "HyperText Markup Language"
   },
   {
     "id": "e6",
     "difficulty": "easy",
-    "question": "What gets sharper the more you use it?",
-    "answer": "Your brain"
+    "category": "tech",
+    "question": "What programming language is named after a snake?",
+    "answer": "Python"
   },
   {
     "id": "e7",
     "difficulty": "easy",
-    "question": "What has many teeth but can't bite?",
-    "answer": "A comb"
+    "category": "tech",
+    "question": "What does the HTTP status code 404 mean?",
+    "answer": "Page not found"
   },
   {
     "id": "e8",
     "difficulty": "easy",
-    "question": "What runs all around a backyard yet never moves?",
-    "answer": "A fence"
+    "category": "tech",
+    "question": "What basic unit of information is represented by a 0 or 1?",
+    "answer": "A bit"
   },
   {
     "id": "m1",
     "difficulty": "medium",
+    "category": "non-tech",
     "question": "I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?",
     "answer": "An echo"
   },
   {
     "id": "m2",
     "difficulty": "medium",
+    "category": "non-tech",
     "question": "The person who makes it, sells it. The person who buys it never uses it. The person who uses it never knows they're using it. What is it?",
     "answer": "A coffin"
   },
   {
     "id": "m3",
     "difficulty": "medium",
+    "category": "non-tech",
     "question": "I can be cracked, made, told, and played. What am I?",
     "answer": "A joke"
   },
   {
     "id": "m4",
     "difficulty": "medium",
+    "category": "non-tech",
     "question": "What comes once in a minute, twice in a moment, but never in a thousand years?",
     "answer": "The letter M"
   },
   {
     "id": "m5",
     "difficulty": "medium",
-    "question": "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?",
-    "answer": "A map"
+    "category": "tech",
+    "question": "What does API stand for in software development?",
+    "answer": "Application Programming Interface"
   },
   {
     "id": "m6",
     "difficulty": "medium",
-    "question": "What can you break, even if you never pick it up or touch it?",
-    "answer": "A promise"
+    "category": "tech",
+    "question": "In computing, what does GUI stand for?",
+    "answer": "Graphical User Interface"
   },
   {
     "id": "m7",
     "difficulty": "medium",
-    "question": "What goes up but never comes down?",
-    "answer": "Your age"
+    "category": "tech",
+    "question": "What programming paradigm uses objects and classes to structure code?",
+    "answer": "Object-oriented programming"
   },
   {
     "id": "m8",
     "difficulty": "medium",
-    "question": "What is seen in the middle of March and April that can't be seen at the beginning or end of either month?",
-    "answer": "The letter R"
+    "category": "tech",
+    "question": "What does SQL stand for in database management?",
+    "answer": "Structured Query Language"
   },
   {
     "id": "h1",
     "difficulty": "hard",
+    "category": "non-tech",
     "question": "I am taken from a mine and shut up in a wooden case, from which I am never released. What am I?",
     "answer": "Pencil lead"
   },
   {
     "id": "h2",
     "difficulty": "hard",
+    "category": "non-tech",
     "question": "What force and strength cannot get through, I with a gentle touch can do. And many in the street would stand, were I not a friend at hand. What am I?",
     "answer": "A key"
   },
   {
     "id": "h3",
     "difficulty": "hard",
+    "category": "non-tech",
     "question": "What can fill a room but takes up no space?",
     "answer": "Light"
   },
   {
     "id": "h4",
     "difficulty": "hard",
+    "category": "non-tech",
     "question": "What is it that you can keep after giving it to someone?",
     "answer": "Your word"
   },
   {
     "id": "h5",
     "difficulty": "hard",
-    "question": "I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?",
-    "answer": "Fire"
+    "category": "tech",
+    "question": "What sorting algorithm repeatedly steps through a list and compares adjacent elements?",
+    "answer": "Bubble sort"
   },
   {
     "id": "h6",
     "difficulty": "hard",
-    "question": "What invention lets you look right through a wall?",
-    "answer": "A window"
+    "category": "tech",
+    "question": "In networking, what does SSH stand for?",
+    "answer": "Secure Shell"
   },
   {
     "id": "h7",
     "difficulty": "hard",
-    "question": "What can you catch but not throw?",
-    "answer": "A cold"
+    "category": "tech",
+    "question": "What data structure operates on a Last-In-First-Out (LIFO) principle?",
+    "answer": "A stack"
   },
   {
     "id": "h8",
     "difficulty": "hard",
-    "question": "What has one eye but can't see?",
-    "answer": "A needle"
+    "category": "tech",
+    "question": "What does DNS stand for in internet infrastructure?",
+    "answer": "Domain Name System"
   }
 ]

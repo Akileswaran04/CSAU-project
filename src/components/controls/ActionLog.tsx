@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useLogStore } from "../../store/useLogStore";
 import { useGameStore } from "../../store/useGameStore";
+import { TeamIconDisplay } from "../shared/TeamIconDisplay";
 import { PanelShell } from "../shared/PanelShell";
 
 const typeIcons = {
@@ -104,12 +105,21 @@ export function ActionLog() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      {teamColor && (
-                        <div
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: teamColor }}
-                        />
-                      )}
+                      {teamColor && (() => {
+                        const entryTeam = teams.find((t) => t.id === entry.teamId);
+                        return (
+                          <div
+                            className="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
+                            style={{
+                              backgroundColor: teamColor + "20",
+                              border: `1px solid ${teamColor}40`,
+                              color: teamColor,
+                            }}
+                          >
+                            {entryTeam && <TeamIconDisplay icon={entryTeam.icon} size={10} />}
+                          </div>
+                        );
+                      })()}
                       <span
                         className="text-white/70 text-sm font-display font-medium truncate"
                         style={teamColor ? { color: teamColor + "cc" } : undefined}

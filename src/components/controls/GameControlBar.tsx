@@ -7,6 +7,7 @@ import {
   SkipForward,
 } from "lucide-react";
 import { useGameStore } from "../../store/useGameStore";
+import { TeamIconDisplay } from "../shared/TeamIconDisplay";
 import { useLogStore } from "../../store/useLogStore";
 import { useRiddleStore } from "../../store/useRiddleStore";
 import { ConfirmDialog } from "../shared/ConfirmDialog";
@@ -151,9 +152,15 @@ export function GameControlBar() {
           <div className="flex items-center gap-2">
             <span className="text-white/40 text-sm">Turn:</span>
             <div
-              className="w-2 h-2 rounded-full"
-              style={{ backgroundColor: currentTeam.color }}
-            />
+              className="w-6 h-6 rounded-lg flex items-center justify-center"
+              style={{
+                backgroundColor: currentTeam.color + "20",
+                border: `1px solid ${currentTeam.color}40`,
+                color: currentTeam.color,
+              }}
+            >
+              <TeamIconDisplay icon={currentTeam.icon} size={12} />
+            </div>
             <span className="text-white font-display font-medium text-sm">
               {currentTeam.name}
             </span>

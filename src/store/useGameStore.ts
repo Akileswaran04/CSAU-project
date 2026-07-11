@@ -5,11 +5,26 @@ export interface Participant {
   name: string;
 }
 
+/** Available player icon names */
+export const TEAM_ICONS = [
+  "sword",
+  "shield",
+  "crown",
+  "zap",
+  "target",
+  "rocket",
+  "flame",
+  "star",
+] as const;
+
+export type TeamIcon = (typeof TEAM_ICONS)[number];
+
 export interface Team {
   id: string;
   name: string;
   participants: Participant[];
   color: string;
+  icon: TeamIcon;
   position: number;
   score: number;
   riddlesAttempted: number;
@@ -23,7 +38,7 @@ export interface Team {
 export type GamePhase = "idle" | "active" | "paused" | "ended";
 
 /** Input type for addTeam — only requires fields the caller provides */
-export type TeamInput = Pick<Team, "name" | "participants" | "color">;
+export type TeamInput = Pick<Team, "name" | "participants" | "color" | "icon">;
 
 export interface GameState {
   teams: Team[];
@@ -84,11 +99,13 @@ export const useGameStore = create<GameState>()(
       addTeam: (team) => {
         const state = get();
         const colorIndex = state.teams.length % TEAM_COLORS.length;
+        const iconIndex = state.teams.length % TEAM_ICONS.length;
         const newTeam: Team = {
           id: crypto.randomUUID(),
           name: team.name,
           participants: team.participants,
           color: team.color || TEAM_COLORS[colorIndex],
+          icon: team.icon || TEAM_ICONS[iconIndex],
           position: 0,
           score: 0,
           riddlesAttempted: 0,

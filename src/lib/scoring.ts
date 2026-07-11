@@ -12,6 +12,12 @@ import { RULES } from "../data/boardConfig";
  * - Incorrect Answer (Medium): -5 points (min 0), -2 cells backward (min 0)
  * - Incorrect Answer (Hard):  -10 points (min 0), -3 cells backward (min 0)
  *
+ * CATEGORY NOTE:
+ * Category (tech vs non-tech) does NOT change point or movement values.
+ * Both categories are weighted equally at the same difficulty level.
+ * Category is a variety/coverage mechanic — it ensures both question types
+ * appear during normal play — not a scoring multiplier. This is by design.
+ *
  * GAME RULES:
  * - Forced Riddle: After 4 consecutive non-riddle landings, team MUST attempt a riddle
  * - Board: 32 cells in snake layout
