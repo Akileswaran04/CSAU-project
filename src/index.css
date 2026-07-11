@@ -1,0 +1,519 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   RIDDLE RUSH — Design Token System
+   Brand: Steel Blue — Graphite base, Blue accent (#4C8DFF)
+   ========================================================================== */
+
+/* ─── 1. PRIMITIVE TOKENS ──────────────────────────────────────────────── */
+@theme {
+  /* Background primitives */
+  --color-obsidian: #0B0E13;
+  --color-obsidian-800: #0B0E13;
+  --color-obsidian-700: #141920;
+  --color-obsidian-600: #1C232C;
+
+  /* Blue accent primitives */
+  --color-steel-blue: #4C8DFF;
+  --color-jade: #4C8DFF; /* alias for backward compat */
+  --color-blue-400: #4C8DFF;
+  --color-blue-500: #3B82F6;
+  --color-blue-600: #2563EB;
+  --color-blue-15: rgba(76, 141, 255, 0.15);
+  --color-blue-40: rgba(76, 141, 255, 0.4);
+
+  /* Gold primitives */
+  --color-gold: #E8B94E;
+  --color-gold-400: #E8B94E;
+  --color-gold-15: rgba(232, 185, 78, 0.15);
+
+  /* Danger primitives */
+  --color-danger: #E5484D;
+  --color-danger-15: rgba(229, 72, 77, 0.15);
+
+  /* Alert primitives */
+  --color-alert: #F2994A;
+  --color-alert-15: rgba(242, 153, 74, 0.15);
+  --color-alert-40: rgba(242, 153, 74, 0.4);
+
+  /* Success primitives */
+  --color-success: #3FBF7F;
+  --color-success-15: rgba(63, 191, 127, 0.15);
+
+  /* Glass primitives — dark theme */
+  --color-glass-bg: rgba(255, 255, 255, 0.03);
+  --color-glass-border: rgba(255, 255, 255, 0.06);
+  --color-glass-white-02: rgba(255, 255, 255, 0.02);
+  --color-glass-white-03: rgba(255, 255, 255, 0.03);
+  --color-glass-white-04: rgba(255, 255, 255, 0.04);
+  --color-glass-white-06: rgba(255, 255, 255, 0.06);
+  --color-glass-white-08: rgba(255, 255, 255, 0.08);
+  --color-glass-white-10: rgba(255, 255, 255, 0.10);
+
+  /* Blue-tinted glass */
+  --color-glass-blue-03: rgba(76, 141, 255, 0.03);
+  --color-glass-blue-06: rgba(76, 141, 255, 0.06);
+  --color-glass-blue-08: rgba(76, 141, 255, 0.08);
+  --color-glass-blue-10: rgba(76, 141, 255, 0.10);
+  --color-glass-blue-12: rgba(76, 141, 255, 0.12);
+  --color-glass-blue-15: rgba(76, 141, 255, 0.15);
+  --color-glass-blue-20: rgba(76, 141, 255, 0.20);
+  --color-glass-blue-25: rgba(76, 141, 255, 0.25);
+  --color-glass-blue-30: rgba(76, 141, 255, 0.30);
+  /* Backward compat: glass-jade → glass-blue */
+  --color-glass-jade-03: rgba(76, 141, 255, 0.03);
+  --color-glass-jade-06: rgba(76, 141, 255, 0.06);
+  --color-glass-jade-08: rgba(76, 141, 255, 0.08);
+  --color-glass-jade-10: rgba(76, 141, 255, 0.10);
+  --color-glass-jade-12: rgba(76, 141, 255, 0.12);
+  --color-glass-jade-15: rgba(76, 141, 255, 0.15);
+  --color-glass-jade-20: rgba(76, 141, 255, 0.20);
+  --color-glass-jade-25: rgba(76, 141, 255, 0.25);
+  --color-glass-jade-30: rgba(76, 141, 255, 0.30);
+
+  /* Shadow primitives */
+  --shadow-ink-heavy: 0 8px 40px -8px rgba(0, 0, 0, 0.5);
+  --shadow-accent-subtle: 0 8px 40px -8px rgba(76, 141, 255, 0.10);
+  --shadow-accent-medium: 0 8px 40px -8px rgba(76, 141, 255, 0.15);
+  --shadow-accent-strong: 0 8px 40px -8px rgba(76, 141, 255, 0.25);
+  --shadow-accent-glow: 0 0 40px rgba(76, 141, 255, 0.20);
+  --shadow-accent-glow-strong: 0 0 40px rgba(76, 141, 255, 0.30);
+  --shadow-gold-glow: 0 0 40px rgba(232, 185, 78, 0.20);
+  --shadow-success-glow: 0 8px 40px -8px rgba(63, 191, 127, 0.30);
+  --shadow-danger-glow: 0 0 40px rgba(229, 72, 77, 0.20);
+  --shadow-alert-glow: 0 0 40px rgba(242, 153, 74, 0.25);
+
+  /* Silver / Bronze (leaderboard placements) */
+  --color-silver: #A0AEC0;
+  --color-bronze: #CD7F32;
+
+  /* Fonts */
+  --font-display: "Inter", "General Sans", system-ui, sans-serif;
+  --font-body: "Inter", "General Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* Backdrop blur */
+  --backdrop-blur-glass: 12px;
+
+  /* Border radius */
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+}
+
+/* ─── LIGHT THEME OVERRIDES (cool gray) ──────────────────────────────────── */
+[data-theme="light"] {
+  /* Accent primary — Steel Blue (deeper for light bg contrast) */
+  --color-accent-primary: #3B82F6;
+  --color-accent-primary-hover: #2563EB;
+  --color-accent-primary-muted: rgba(59, 130, 246, 0.12);
+  --color-accent-primary-glow: rgba(59, 130, 246, 0.25);
+
+  /* Backgrounds — cool light gray */
+  --color-bg-base: #F0F2F5;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-elevated: #E8EBF0;
+  --color-bg-sidebar: rgba(240, 242, 245, 0.95);
+  --color-bg-header: rgba(255, 255, 255, 0.90);
+
+  /* Foreground text — solid, no opacity */
+  --color-fg-default: #1A1D23;
+  --color-fg-muted: #4B5563;
+  --color-fg-subtle: #6B7280;
+  --color-fg-faint: #9CA3AF;
+
+  /* Accent gold */
+  --color-accent-gold: #B9860B;
+  --color-accent-gold-muted: rgba(185, 134, 11, 0.15);
+
+  /* Accent danger */
+  --color-accent-danger: #D1383D;
+  --color-accent-danger-muted: rgba(209, 56, 61, 0.15);
+
+  /* Glass primitives (light) */
+  --color-glass-bg: rgba(0, 0, 0, 0.03);
+  --color-glass-border: rgba(0, 0, 0, 0.08);
+  --color-glass-white-02: rgba(0, 0, 0, 0.02);
+  --color-glass-white-03: rgba(0, 0, 0, 0.03);
+  --color-glass-white-04: rgba(0, 0, 0, 0.04);
+  --color-glass-white-06: rgba(0, 0, 0, 0.06);
+  --color-glass-white-08: rgba(0, 0, 0, 0.08);
+  --color-glass-white-10: rgba(0, 0, 0, 0.10);
+
+  /* Blue-tinted glass (light) */
+  --color-glass-blue-03: rgba(59, 130, 246, 0.03);
+  --color-glass-blue-06: rgba(59, 130, 246, 0.06);
+  --color-glass-blue-08: rgba(59, 130, 246, 0.08);
+  --color-glass-blue-10: rgba(59, 130, 246, 0.10);
+  --color-glass-blue-12: rgba(59, 130, 246, 0.12);
+  --color-glass-blue-15: rgba(59, 130, 246, 0.15);
+  --color-glass-blue-20: rgba(59, 130, 246, 0.20);
+  --color-glass-blue-25: rgba(59, 130, 246, 0.25);
+  --color-glass-blue-30: rgba(59, 130, 246, 0.30);
+  /* Backward compat: glass-jade → glass-blue */
+  --color-glass-jade-03: rgba(59, 130, 246, 0.03);
+  --color-glass-jade-06: rgba(59, 130, 246, 0.06);
+  --color-glass-jade-08: rgba(59, 130, 246, 0.08);
+  --color-glass-jade-10: rgba(59, 130, 246, 0.10);
+  --color-glass-jade-12: rgba(59, 130, 246, 0.12);
+  --color-glass-jade-15: rgba(59, 130, 246, 0.15);
+  --color-glass-jade-20: rgba(59, 130, 246, 0.20);
+  --color-glass-jade-25: rgba(59, 130, 246, 0.25);
+  --color-glass-jade-30: rgba(59, 130, 246, 0.30);
+
+  /* Shadows (light) */
+  --shadow-ink-heavy: 0 8px 40px -8px rgba(0, 0, 0, 0.08);
+  --shadow-accent-subtle: 0 8px 40px -8px rgba(59, 130, 246, 0.08);
+  --shadow-accent-medium: 0 8px 40px -8px rgba(59, 130, 246, 0.12);
+  --shadow-accent-strong: 0 8px 40px -8px rgba(59, 130, 246, 0.20);
+  --shadow-accent-glow: 0 0 40px rgba(59, 130, 246, 0.15);
+  --shadow-gold-glow: 0 0 40px rgba(185, 134, 11, 0.15);
+  --shadow-glass: 0 8px 40px -8px rgba(0, 0, 0, 0.08);
+  --shadow-success: 0 8px 40px -8px rgba(63, 191, 127, 0.20);
+  --shadow-danger: 0 8px 40px -8px rgba(209, 56, 61, 0.20);
+  --shadow-alert-glow: 0 0 40px rgba(242, 153, 74, 0.20);
+}
+
+/* ─── 2. SEMANTIC TOKENS ────────────────────────────────────────────────── */
+@theme {
+  /* Backgrounds — steel graphite */
+  --color-bg-base: #0B0E13;
+  --color-bg-surface: #141920;
+  --color-bg-elevated: #1C232C;
+  --color-bg-sidebar: rgba(11, 14, 19, 0.90);
+  --color-bg-header: rgba(11, 14, 19, 0.85);
+
+  /* Accent primary: Steel Blue */
+  --color-accent-primary: #4C8DFF;
+  --color-accent-primary-hover: #6FA3FF;
+  --color-accent-primary-muted: rgba(76, 141, 255, 0.15);
+  --color-accent-primary-glow: rgba(76, 141, 255, 0.4);
+
+  /* Accent gold: Achievement / Leaderboard #1 */
+  --color-accent-gold: #E8B94E;
+  --color-accent-gold-muted: rgba(232, 185, 78, 0.15);
+
+  /* Accent danger: Destructive ONLY */
+  --color-accent-danger: #E5484D;
+  --color-accent-danger-muted: rgba(229, 72, 77, 0.15);
+
+  /* Accent alert: Forced riddles, warnings (separate from danger) */
+  --color-alert-amber: #F2994A;
+  --color-alert-amber-muted: rgba(242, 153, 74, 0.15);
+  --color-alert-amber-glow: rgba(242, 153, 74, 0.4);
+
+  /* Accent success: Correct answers */
+  --color-accent-success: #3FBF7F;
+  --color-accent-success-muted: rgba(63, 191, 127, 0.15);
+
+  /* Accent silver / bronze (placements) */
+  --color-accent-silver: #A0AEC0;
+  --color-accent-bronze: #CD7F32;
+
+  /* Difficulty (game-specific semantics) */
+  --color-diff-easy: #3FBF7F;
+  --color-diff-medium: #F2994A;
+  --color-diff-hard: #E5484D;
+
+  /* Foreground text — solid values, never opacity-based */
+  --color-fg-default: #EDF1F5;
+  --color-fg-muted: #94A3B0;
+  --color-fg-subtle: #64748B;
+  --color-fg-faint: #475569;
+
+  /* Component references */
+  --color-glass-tint: rgba(76, 141, 255, 0.04);
+
+  /* Shadows (semantic) */
+  --shadow-glass: 0 8px 40px -8px rgba(0, 0, 0, 0.5);
+  --shadow-glass-tinted: 0 8px 40px -8px rgba(76, 141, 255, 0.10);
+  --shadow-glow: 0 0 40px rgba(76, 141, 255, 0.20);
+  --shadow-success: 0 8px 40px -8px rgba(63, 191, 127, 0.30);
+  --shadow-danger: 0 8px 40px -8px rgba(229, 72, 77, 0.30);
+}
+
+/* ─── BASE LAYER ─────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    --theme-transition: 0.35s ease;
+    transition: background-color var(--theme-transition);
+  }
+
+  body {
+    background-color: var(--color-bg-base);
+    color: var(--color-fg-default);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    transition:
+      background-color var(--theme-transition),
+      color var(--theme-transition),
+      border-color var(--theme-transition);
+  }
+
+  nav, main {
+    transition:
+      background var(--theme-transition),
+      background-color var(--theme-transition),
+      border-color var(--theme-transition);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent-primary-muted) transparent;
+  }
+
+  *::-webkit-scrollbar { width: 5px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-accent-primary-muted);
+    border-radius: 4px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent-primary-glow);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-accent-primary-muted);
+    color: var(--color-fg-default);
+  }
+}
+
+/* ─── 3. COMPONENT TOKENS & STYLES ───────────────────────────────────── */
+
+/* ─── Animated Background ─── */
+@keyframes mesh-drift {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 0%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.bg-mesh-animated {
+  background:
+    radial-gradient(ellipse at 20% 50%, var(--color-glass-tint) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, var(--color-accent-success-muted) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, var(--color-accent-danger-muted) 0%, transparent 50%),
+    var(--color-bg-base);
+  background-size: 200% 200%, 200% 200%, 200% 200%, 100% 100%;
+  animation: mesh-drift 20s ease-in-out infinite;
+}
+
+/* Glass Panel System ─── */
+.glass-panel {
+  position: relative;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(var(--backdrop-blur-glass)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--backdrop-blur-glass)) saturate(160%);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-2xl);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    var(--shadow-ink-heavy);
+  transition:
+    background var(--theme-transition),
+    background-color var(--theme-transition),
+    border-color var(--theme-transition),
+    box-shadow var(--theme-transition);
+}
+
+.glass-panel-tinted {
+  position: relative;
+  background: var(--color-glass-blue-03);
+  backdrop-filter: blur(var(--backdrop-blur-glass)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--backdrop-blur-glass)) saturate(160%);
+  border: 1px solid var(--color-glass-blue-06);
+  border-radius: var(--radius-2xl);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    var(--shadow-accent-subtle);
+  transition:
+    background var(--theme-transition),
+    background-color var(--theme-transition),
+    border-color var(--theme-transition),
+    box-shadow var(--theme-transition);
+}
+
+/* Glass button */
+.glass-button {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(var(--backdrop-blur-glass));
+  -webkit-backdrop-filter: blur(var(--backdrop-blur-glass));
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  transition:
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color var(--theme-transition),
+    box-shadow var(--theme-transition),
+    color var(--theme-transition);
+}
+
+.glass-button:active {
+  transform: scale(0.98);
+}
+
+/* Colored glow shadows */
+.glow-accent { box-shadow: var(--shadow-accent-strong); }
+.glow-gold { box-shadow: var(--shadow-gold-glow); }
+.glow-danger { box-shadow: var(--shadow-danger-glow); }
+
+/* Gradient border effect */
+.gradient-border {
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    transparent 50%,
+    var(--color-accent-primary-muted)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─── Dialog Animations ─── */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes dialog-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); filter: blur(12px); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0px); }
+}
+@keyframes dialog-out {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0px); }
+  to { opacity: 0; transform: translate(-50%, -50%) scale(0.92); filter: blur(12px); }
+}
+
+.animate-fade-in { animation: fade-in 0.2s ease-out; }
+.animate-fade-out { animation: fade-out 0.15s ease-in forwards; }
+.animate-dialog-in { animation: dialog-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.animate-dialog-out { animation: dialog-out 0.15s ease-in forwards; }
+
+/* ─── Utility Animations ─── */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px var(--color-accent-primary-muted); }
+  50% { box-shadow: 0 0 40px var(--color-accent-primary-glow); }
+}
+
+@keyframes forced-alarm {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--color-alert-amber-glow);
+    border-color: var(--color-alert-amber);
+  }
+  50% {
+    box-shadow: 0 0 50px var(--color-alert-amber-glow);
+    border-color: var(--color-alert-amber);
+  }
+}
+
+@utility animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@utility animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@utility animate-forced-alarm {
+  animation: forced-alarm 0.5s ease-in-out infinite;
+}
+
+@utility animate-slide-up {
+  animation: slide-up 0.4s ease-out forwards;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.team-token-label {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-token-label:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+@keyframes dice-tray-pulse {
+  0%, 100% { box-shadow: 0 8px 40px -8px var(--color-accent-primary-muted), inset 0 0 60px var(--color-glass-tint); }
+  50% { box-shadow: 0 8px 40px -8px var(--color-accent-primary-glow), inset 0 0 60px var(--color-accent-primary-muted); }
+}
+
+.animate-dice-tray { animation: dice-tray-pulse 3s ease-in-out infinite; }
+@utility animate-dice-tray { animation: dice-tray-pulse 3s ease-in-out infinite; }
+
+@keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@utility animate-spin-slow { animation: spin-slow 3s linear infinite; }
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .bg-mesh-animated { animation: none; }
+}
+
+/* ─── Typography Utilities ─── */
+@utility text-display { font-family: var(--font-display); font-weight: 600; }
+@utility text-mono { font-family: var(--font-mono); }
+
+/* ─── Glass Input ─── */
+.glass-input {
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  color: var(--color-fg-default);
+  padding: 10px 16px;
+  transition:
+    all 0.2s ease,
+    background var(--theme-transition),
+    border-color var(--theme-transition),
+    box-shadow var(--theme-transition),
+    color var(--theme-transition);
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 3px var(--color-accent-primary-muted);
+  background: var(--color-glass-white-06);
+}
+
+.glass-input::placeholder {
+  color: var(--color-fg-subtle);
+}
