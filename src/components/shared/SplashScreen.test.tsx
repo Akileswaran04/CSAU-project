@@ -36,10 +36,16 @@ vi.mock("framer-motion", () => {
       {children}
     </p>
   );
+  const MotionSpan = ({ children, className, style }: any) => (
+    <span className={className} style={style}>
+      {children}
+    </span>
+  );
   return {
     motion: {
       div: MotionDiv,
       p: MotionP,
+      span: MotionSpan,
     },
   };
 });
@@ -87,9 +93,9 @@ describe("SplashScreen", () => {
     expect(screen.getByText("v2.0")).toBeInTheDocument();
   });
 
-  it("renders the 'Tap anywhere to continue' hint", () => {
+  it("renders the 'Tap to continue' hint", () => {
     render(<SplashScreen onFinish={vi.fn()} />);
-    expect(screen.getByText("Tap anywhere to continue")).toBeInTheDocument();
+    expect(screen.getByText("Tap to continue")).toBeInTheDocument();
   });
 
   // ── Auto-dismiss ───────────────────────────────────────────────────────
