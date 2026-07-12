@@ -5,6 +5,7 @@ import { useRoomStore } from "../store/useRoomStore";
 import {
   createRoom,
   joinRoom,
+  reconnectToRoom,
   leaveRoom,
   deleteRoom,
   persistGameState,
@@ -12,6 +13,7 @@ import {
   broadcastGameEvent,
   onStateChange,
   onPresenceChange,
+  onConnectionChange,
 } from "../lib/supabaseMultiplayer";
 
 /* ─── Fields to sync between host and players ─── */
@@ -73,6 +75,42 @@ export function applySyncableState(state: SyncableState): void {
     isForcedRiddle: state.isForcedRiddle,
     forcedTeamId: state.forcedTeamId,
   });
+}
+
+/* ─── Saved room (localStorage for reconnection) ─── */
+
+const STORAGE_KEY = "ruflo_room";
+
+interface SavedRoom {
+  code: string;
+  playerName: string;
+  isHost: boolean;
+}
+
+export function getSavedRoom(): SavedRoom | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.code && parsed.playerName) {
+      return parsed as SavedRoom;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function saveRoom(data: SavedRoom): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch { /* silent */ }
+}
+
+function clearSavedRoom(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch { /* silent */ }
 }
 
 /* ─── Module-level singleton state ─── */
@@ -170,6 +208,55 @@ export function useRealtimeRoom() {
     };
   }, []);
 
+  /* ─── Persist teams immediately during waiting phase (no debounce) ─── */
+  useEffect(() => {
+    const unsub = useGameStore.subscribe(() => {
+      if (isHostRefGlobal) {
+        const code = useRoomStore.getState().roomCode;
+        if (code) {
+          const phase = useGameStore.getState().gamePhase;
+          if (phase === "idle") {
+            // Teams change during waiting — persist immediately (no debounce)
+            const syncable = extractSyncableState();
+            persistGameState(code, syncable);
+          }
+        }
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  /* ─── Track Realtime channel connection status ─── */
+  useEffect(() => {
+    let disconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const unsub = onConnectionChange((connected) => {
+      if (connected) {
+        // Connection restored — clear the dropped flag immediately
+        if (disconnectTimer) {
+          clearTimeout(disconnectTimer);
+          disconnectTimer = null;
+        }
+        useRoomStore.getState().setConnectionDropped(false);
+        useRoomStore.getState().setIsConnected(true);
+      } else {
+        // Connection lost — wait 3s before showing the banner (avoid flash)
+        if (!disconnectTimer) {
+          disconnectTimer = setTimeout(() => {
+            useRoomStore.getState().setConnectionDropped(true);
+            useRoomStore.getState().setIsConnected(false);
+            disconnectTimer = null;
+          }, 3000);
+        }
+      }
+    });
+
+    return () => {
+      unsub();
+      if (disconnectTimer) clearTimeout(disconnectTimer);
+    };
+  }, []);
+
   /* ─── Actions ─── */
 
   const handleCreateRoom = useCallback(async (playerName: string) => {
@@ -181,6 +268,7 @@ export function useRealtimeRoom() {
         roomStore.setIsConnected(true);
         roomStore.setIsHost(true);
         roomStore.setError(null);
+        saveRoom({ code: result.roomCode, playerName, isHost: true });
         return result.roomCode;
       } else {
         roomStore.setError(result.error || "Failed to create room");
@@ -201,6 +289,7 @@ export function useRealtimeRoom() {
         roomStore.setIsConnected(true);
         roomStore.setIsHost(false);
         roomStore.setError(null);
+        saveRoom({ code: result.roomCode, playerName, isHost: false });
 
         if (result.gameState) {
           syncingRefGlobal = true;
@@ -241,9 +330,50 @@ export function useRealtimeRoom() {
     if (code) persistGameState(code, syncable);
   }, []);
 
+  const handleReconnect = useCallback(async () => {
+    const saved = getSavedRoom();
+    if (!saved) return false;
+
+    try {
+      const result = await reconnectToRoom(saved.code, saved.playerName);
+      if (result.ok) {
+        isHostRefGlobal = result.isHost ?? false;
+        roomStore.setRoomCode(saved.code);
+        roomStore.setIsConnected(true);
+        roomStore.setIsHost(result.isHost ?? false);
+        roomStore.setError(null);
+        saveRoom({ code: saved.code, playerName: saved.playerName, isHost: result.isHost ?? false });
+
+        if (result.gameState) {
+          syncingRefGlobal = true;
+          applySyncableState(result.gameState as SyncableState);
+
+          // If game is active, mark it so non-host auto-navigates to board
+          if (result.gameState.gamePhase === "active" || result.gameState.gamePhase === "ended") {
+            useRoomStore.getState().setGameActive(true);
+          }
+
+          syncingRefGlobal = false;
+        }
+
+        return true;
+      } else {
+        // Room is gone — clear saved data
+        clearSavedRoom();
+        roomStore.setError(result.error || "Could not reconnect");
+        return false;
+      }
+    } catch (err: any) {
+      clearSavedRoom();
+      roomStore.setError(err?.message || "Reconnection failed");
+      return false;
+    }
+  }, []);
+
   const handleLeaveRoom = useCallback(async () => {
     isHostRefGlobal = false;
     clearBroadcastTimer();
+    clearSavedRoom();
     roomStore.reset();
     roomStore.setGameActive(false);
     useGameStore.getState().setGamePhase("idle");
@@ -256,6 +386,8 @@ export function useRealtimeRoom() {
     await handleLeaveRoom();
   }, [roomStore.roomCode, handleLeaveRoom]);
 
+  const savedRoom = getSavedRoom();
+
   return {
     roomCode: roomStore.roomCode,
     players: roomStore.players,
@@ -263,8 +395,10 @@ export function useRealtimeRoom() {
     isConnected: roomStore.isConnected,
     error: roomStore.error,
     isGameActive: roomStore.isGameActive,
+    savedRoom,
     createRoom: handleCreateRoom,
     joinRoom: handleJoinRoom,
+    reconnect: handleReconnect,
     startGame: handleStartGame,
     initializeGame: handleInitializeGame,
     leaveRoom: handleLeaveRoom,

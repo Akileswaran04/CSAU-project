@@ -15,6 +15,8 @@ import {
   DoorOpen,
   UserPlus,
   Loader2,
+  RefreshCw,
+  X,
 } from "lucide-react";
 import { useGameStore, TEAM_ICONS, type TeamIcon, type GameMode } from "../store/useGameStore";
 import { TeamIconDisplay } from "../components/shared/TeamIconDisplay";
@@ -329,6 +331,99 @@ function OnlineLobby({ onCreateRoom, onJoinRoom, error }: OnlineLobbyProps) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Reconnect Banner — shown when a saved room is found in localStorage
+   ═══════════════════════════════════════════════════════════════════════════ */
+function ReconnectBanner({
+  savedRoom,
+  onReconnect,
+  onDismiss,
+}: {
+  savedRoom: { code: string; playerName: string; isHost: boolean };
+  onReconnect: () => void;
+  onDismiss: () => void;
+}) {
+  return (
+    <div className="min-h-[500px] flex flex-col items-center justify-center px-4 py-10">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: "spring", damping: 20, stiffness: 250 }}
+        className="w-full max-w-md"
+      >
+        <div
+          className="p-8 rounded-2xl text-center"
+          style={{
+            background: "var(--color-glass-blue-06)",
+            border: "1px solid var(--color-glass-blue-10)",
+          }}
+        >
+          {/* Icon */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", damping: 15, stiffness: 200, delay: 0.1 }}
+            className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-5"
+            style={{
+              background: "var(--color-accent-primary-muted)",
+              border: "1px solid var(--color-accent-primary-muted)",
+            }}
+          >
+            <Wifi size={32} style={{ color: "var(--color-accent-primary)" }} />
+          </motion.div>
+
+          <h2 className="text-2xl font-display font-bold mb-1" style={{ color: "var(--color-fg-default)" }}>
+            Reconnect to Room
+          </h2>
+          <p className="text-sm mb-2" style={{ color: "var(--color-fg-muted)" }}>
+            You were previously in a room as{' '}
+            <span className="font-semibold" style={{ color: "var(--color-fg-default)" }}>
+              {savedRoom.playerName}
+            </span>
+          </p>
+
+          {/* Room code badge */}
+          <div
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
+            style={{
+              background: "var(--color-glass-blue-08)",
+              border: "1px solid var(--color-glass-blue-15)",
+              color: "var(--color-accent-primary)",
+            }}
+          >
+            <Wifi size={14} />
+            <span className="text-sm font-mono font-bold tracking-[0.15em]">
+              {savedRoom.code}
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            <Button
+              onClick={onReconnect}
+              variant="primary"
+              size="lg"
+              className="w-full"
+            >
+              <RefreshCw size={18} />
+              Reconnect
+            </Button>
+
+            <Button
+              onClick={onDismiss}
+              variant="ghost"
+              size="sm"
+              className="w-full !text-white/40 hover:!text-white/70"
+            >
+              <X size={16} />
+              Start Fresh
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    MAIN: SetupPage
    ═══════════════════════════════════════════════════════════════════════════ */
 export function SetupPage() {
@@ -336,6 +431,9 @@ export function SetupPage() {
   const isLocked = gamePhase !== "idle";
   const navigate = useNavigate();
   const room = useRealtimeRoom();
+
+  // Reconnect banner dismiss
+  const [dismissedReconnect, setDismissed] = useState(false);
 
   // Team management for host (online mode)
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
@@ -434,6 +532,28 @@ export function SetupPage() {
         {/* Mode-specific content */}
         {gameMode === "offline" ? (
           <OfflineTeamPanel />
+        ) : !room.roomCode && room.savedRoom && !dismissedReconnect ? (
+          <ReconnectBanner
+            savedRoom={room.savedRoom}
+            onReconnect={async () => {
+              const ok = await room.reconnect();
+              if (ok) {
+                // Read fresh state from store (not stale closure value)
+                const { teams, gamePhase } = useGameStore.getState();
+                if (teams.length > 0) {
+                  toast.success(`Restored ${teams.length} team${teams.length !== 1 ? "s" : ""}`);
+                }
+                if (gamePhase === "active" || gamePhase === "ended") {
+                  navigate("/board");
+                }
+              }
+            }}
+            onDismiss={() => {
+              localStorage.removeItem("ruflo_room");
+              setDismissed(true);
+              toast.info("Saved room cleared — you can create or join a new room");
+            }}
+          />
         ) : !room.roomCode ? (
           <OnlineLobby
             onCreateRoom={handleCreateRoom}

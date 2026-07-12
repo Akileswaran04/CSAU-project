@@ -41,6 +41,7 @@ export type GameEvent =
 export type StateListener = (state: any) => void;
 export type PresenceListener = (players: PresenceState[]) => void;
 export type ErrorListener = (error: string) => void;
+export type ConnectionListener = (connected: boolean) => void;
 
 /* ─── State ─── */
 
@@ -53,6 +54,7 @@ const listeners = {
   state: new Set<StateListener>(),
   presence: new Set<PresenceListener>(),
   error: new Set<ErrorListener>(),
+  connection: new Set<ConnectionListener>(),
 };
 
 /* ─── Auth ─── */
@@ -232,6 +234,54 @@ export async function joinRoom(roomCode: string, playerName: string): Promise<{
 }
 
 /**
+ * Reconnect to a room the player was previously in.
+ * Unlike joinRoom, this:
+ * - Allows reconnecting to rooms with any status (playing, waiting, ended)
+ * - Skips player insert if the player already has a row
+ * - Still authenticates and joins the Realtime Channel
+ */
+export async function reconnectToRoom(roomCode: string, playerName: string): Promise<{
+  ok: boolean;
+  error?: string;
+  gameState?: any;
+  isHost?: boolean;
+}> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { ok: false, error: "Supabase is not configured" };
+  }
+
+  try {
+    const userId = await ensureAuthenticated();
+    const normalizedCode = roomCode.toUpperCase();
+
+    const { room, players } = await fetchRoom(normalizedCode);
+    if (!room) return { ok: false, error: "Room no longer exists" };
+
+    // Check if the user is already in this room
+    const existingPlayer = players.find(p => p.player_id === userId);
+    const isHost = existingPlayer?.is_host ?? room.host_player_id === userId;
+
+    if (!existingPlayer) {
+      // Player wasn't in this room — add them back
+      const { error: playerError } = await supabase.from("room_players").insert({
+        room_code: normalizedCode,
+        player_name: playerName,
+        is_host: isHost,
+        player_id: userId,
+      });
+      if (playerError) return { ok: false, error: `Failed to rejoin: ${playerError.message}` };
+    }
+
+    currentPlayerName = playerName;
+    joinRoomChannel(normalizedCode, playerName, userId, isHost);
+
+    return { ok: true, gameState: room.game_state, isHost };
+  } catch (err: any) {
+    return { ok: false, error: err?.message || "Failed to reconnect" };
+  }
+}
+
+/**
  * Spectate a room — joins the SAME Realtime Channel as players (to receive broadcasts)
  * but does NOT track presence (invisible spectator).
  *
@@ -367,12 +417,15 @@ function joinRoomChannel(
 
   channel.subscribe(async (status) => {
     if (status === "SUBSCRIBED") {
+      listeners.connection.forEach(fn => fn(true));
       await channel.track({
         playerId: userId,
         playerName,
         isHost,
         onlineAt: Date.now(),
       });
+    } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+      listeners.connection.forEach(fn => fn(false));
     }
   });
 
@@ -428,6 +481,11 @@ export function onPresenceChange(fn: PresenceListener): () => void {
 export function onError(fn: ErrorListener): () => void {
   listeners.error.add(fn);
   return () => listeners.error.delete(fn);
+}
+
+export function onConnectionChange(fn: ConnectionListener): () => void {
+  listeners.connection.add(fn);
+  return () => listeners.connection.delete(fn);
 }
 
 /* ─── Connection Status ─── */

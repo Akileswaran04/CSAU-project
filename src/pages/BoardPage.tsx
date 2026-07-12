@@ -16,13 +16,84 @@ import { useSettingsStore } from "../store/useSettingsStore";
 import { boardCells } from "../data/boardConfig";
 import { saveMatchResult } from "../lib/leaderboardHistoryService";
 import { useLeaderboardHistoryStore } from "../store/useLeaderboardHistoryStore";
-import { Trophy, Crown, Medal, Award, Download, RotateCcw, Share2, Minimize2, ChevronUp, PanelRightClose, PanelRightOpen, Eye, Wifi, ArrowLeft } from "lucide-react";
+import { Trophy, Crown, Medal, Award, Download, RotateCcw, Share2, Minimize2, ChevronUp, PanelRightClose, PanelRightOpen, Eye, Wifi, ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { useRealtimeRoom } from "../hooks/useRealtimeRoom";
+import { useRealtimeRoom, getSavedRoom } from "../hooks/useRealtimeRoom";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
+/* ─── Reconnecting overlay ─── */
+function ReconnectingOverlay() {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-ink-900/90 backdrop-blur-sm"
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", damping: 20, stiffness: 200 }}
+        className="text-center"
+      >
+        <div
+          className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-6"
+          style={{
+            background: "var(--color-accent-primary-muted)",
+            border: "1px solid var(--color-accent-primary-muted)",
+          }}
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+          >
+            <Wifi size={36} style={{ color: "var(--color-accent-primary)" }} />
+          </motion.div>
+        </div>
+        <motion.h2
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="text-2xl font-display font-bold text-white mb-2"
+        >
+          Reconnecting
+        </motion.h2>
+        <motion.p
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className="text-fg-muted font-display"
+        >
+          Restoring your game session...
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8 flex justify-center gap-1"
+        >
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="w-2 h-2 rounded-full"
+              style={{ background: "var(--color-accent-primary)" }}
+              animate={{ y: [0, -8, 0] }}
+              transition={{
+                repeat: Infinity,
+                duration: 0.6,
+                delay: i * 0.15,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ─── Victory Screen ─── */
 function VictoryScreen() {
   const { teams, winner, setGamePhase, setWinner } = useGameStore();
   const gameMode = useGameStore((s) => s.gameMode);
@@ -161,6 +232,71 @@ function VictoryScreen() {
   );
 }
 
+/* ─── Network disconnected banner ─── */
+function DisconnectedBanner() {
+  const room = useRoomStore();
+  const gameMode = useGameStore((s) => s.gameMode);
+  const hookRoom = useRealtimeRoom();
+  const [isRetrying, setIsRetrying] = useState(false);
+
+  if (!room.connectionDropped || gameMode !== "online") return null;
+
+  const handleReconnect = async () => {
+    setIsRetrying(true);
+    const ok = await hookRoom.reconnect();
+    setIsRetrying(false);
+    if (ok) {
+      toast.success("Reconnected successfully");
+    } else {
+      // Read fresh error from store (not stale closure)
+      toast.error(useRoomStore.getState().error || "Could not reconnect");
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ y: -60, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -60, opacity: 0 }}
+      className="fixed top-0 left-0 right-0 z-[70]"
+    >
+      <div
+        className="flex items-center justify-center gap-3 px-4 py-3 text-sm font-display"
+        style={{
+          background: "linear-gradient(135deg, rgba(225, 29, 60, 0.15), rgba(225, 29, 60, 0.08))",
+          borderBottom: "1px solid rgba(225, 29, 60, 0.2)",
+          color: "#FF6B6B",
+        }}
+      >
+        <motion.div
+          animate={{ opacity: [1, 0.4, 1] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          className="w-2 h-2 rounded-full bg-danger shrink-0"
+        />
+        <span className="font-medium">Network connection lost</span>
+        <span className="text-white/40 text-xs hidden sm:inline">
+          Trying to reconnect...
+        </span>
+        <button
+          onClick={handleReconnect}
+          disabled={isRetrying}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ml-2"
+          style={{
+            background: "rgba(255, 255, 255, 0.1)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            color: "#FF6B6B",
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)"}
+          onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)"}
+        >
+          <RefreshCw size={14} className={isRetrying ? "animate-spin" : ""} />
+          Reconnect Now
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
 /* ─── Spectator indicator banner ─── */
 function SpectatorBanner() {
   const room = useRoomStore();
@@ -191,11 +327,39 @@ export function BoardPage() {
   const [showSidePanel, setShowSidePanel] = useState(false);
 
   // Keep broadcast subscription alive for non-host players
-  useRealtimeRoom();
+  const hookRoom = useRealtimeRoom();
 
   const gameMode = useGameStore((s) => s.gameMode);
   const room = useRoomStore();
   const isOnlineNonHost = gameMode === "online" && room.isConnected && !room.isHost;
+  const navigate = useNavigate();
+
+  /* ─── Auto-reconnect on mount if we have a saved room ─── */
+  const [isReconnecting, setIsReconnecting] = useState(false);
+  const reconnectAttempted = useRef(false);
+
+  useEffect(() => {
+    if (reconnectAttempted.current) return;
+    const saved = getSavedRoom();
+    if (!saved) return;
+    if (room.isConnected && room.roomCode) return; // already connected
+
+    // Check if we're in an online context with no active connection
+    if (gameMode === "online" || saved) {
+      reconnectAttempted.current = true;
+      setIsReconnecting(true);
+
+      hookRoom.reconnect().then((ok) => {
+        setIsReconnecting(false);
+        if (!ok) {
+          // Reconnect failed — show a dismissable error
+          const errMsg = room.error || "Could not reconnect";
+          toast.error(`${errMsg} — redirecting to setup`);
+          setTimeout(() => navigate("/setup"), 2000);
+        }
+      });
+    }
+  }, []); // only on mount
 
   const currentTeam = teams[currentTeamIndex];
 
@@ -283,11 +447,24 @@ export function BoardPage() {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  if (boardFullscreen) {
-    return (
-      <motion.div initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, ease: "easeOut" }} className="fixed inset-0 z-50 bg-ink-900">
-        <SpectatorBanner />
+  // ─── Show reconnecting overlay ───
+  if (isReconnecting) {
+    return <ReconnectingOverlay />;
+  }
+
+  return (
+    <>
+      {/* Disconnected banner — fixed, renders above everything */}
+      <AnimatePresence>
+        {room.connectionDropped && gameMode === "online" && (
+          <DisconnectedBanner />
+        )}
+      </AnimatePresence>
+
+      {boardFullscreen ? (
+        <motion.div initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }} className="fixed inset-0 z-50 bg-ink-900">
+          <SpectatorBanner />
         <AnimatePresence>{gamePhase === "ended" && winner && <VictoryScreen />}</AnimatePresence>
         <div className="absolute inset-0"><GameBoard3D onToggleFullscreen={toggleFullscreen} isFullscreen={true} /></div>
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
@@ -300,11 +477,8 @@ export function BoardPage() {
           aria-label="Exit fullscreen"><Minimize2 size={18} /></motion.button>
         <RiddleModal />
       </motion.div>
-    );
-  }
-
-  return (
-    <div className="min-h-full flex flex-col"
+    ) : (
+      <div className="min-h-full flex flex-col"
       style={{ background: ["radial-gradient(ellipse at 30% 20%, rgba(47, 217, 168, 0.06) 0%, transparent 60%)", "radial-gradient(ellipse at 70% 80%, rgba(255, 184, 48, 0.03) 0%, transparent 50%)", "var(--color-bg-base)"].join(", ") }}>
       <SpectatorBanner />
       <AnimatePresence>{gamePhase === "ended" && winner && <VictoryScreen />}</AnimatePresence>
@@ -378,5 +552,7 @@ export function BoardPage() {
       </div>
       <RiddleModal />
     </div>
+    )}
+    </>
   );
 }
