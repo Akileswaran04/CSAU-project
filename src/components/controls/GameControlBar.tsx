@@ -7,6 +7,7 @@ import {
   SkipForward,
 } from "lucide-react";
 import { useGameStore } from "../../store/useGameStore";
+import { useRoomStore } from "../../store/useRoomStore";
 import { TeamIconDisplay } from "../shared/TeamIconDisplay";
 import { useLogStore } from "../../store/useLogStore";
 import { useRiddleStore } from "../../store/useRiddleStore";
@@ -27,28 +28,28 @@ export function GameControlBar() {
     resetGame,
   } = useGameStore();
 
+  const room = useRoomStore();
+  const gameMode = useGameStore((s) => s.gameMode);
+  const isOnlineNonHost = gameMode === "online" && room.isConnected && !room.isHost;
+
   const clearLog = useLogStore((s) => s.clearLog);
   const resetUsedRiddles = useRiddleStore((s) => s.resetUsedRiddles);
 
-  const [confirmAction, setConfirmAction] = useState<"reset" | "end" | null>(
-    null
-  );
+  const [confirmAction, setConfirmAction] = useState<"reset" | "end" | null>(null);
 
   const currentTeam = teams[currentTeamIndex];
 
-  const addLogEntry = useCallback(
-    (message: string) => {
-      useLogStore.getState().addEntry({
-        teamId: null,
-        teamName: "system",
-        message,
-        type: "system",
-      });
-    },
-    []
-  );
+  const addLogEntry = useCallback((message: string) => {
+    useLogStore.getState().addEntry({
+      teamId: null,
+      teamName: "system",
+      message,
+      type: "system",
+    });
+  }, []);
 
   const handleStart = useCallback(() => {
+    if (isOnlineNonHost) return;
     if (teams.length < 2) {
       toast.error("Need at least 2 teams to start");
       return;
@@ -58,9 +59,10 @@ export function GameControlBar() {
     sounds.turnAdvance.play();
     toast.success("Game started!");
     addLogEntry("Game started!");
-  }, [teams, setGamePhase, setActiveTeamId, addLogEntry]);
+  }, [teams, setGamePhase, setActiveTeamId, addLogEntry, isOnlineNonHost]);
 
   const handlePause = useCallback(() => {
+    if (isOnlineNonHost) return;
     if (gamePhase === "active") {
       setGamePhase("paused");
       toast.info("Game paused");
@@ -70,53 +72,37 @@ export function GameControlBar() {
       toast.success("Game resumed");
       addLogEntry("Game resumed");
     }
-  }, [gamePhase, setGamePhase, addLogEntry]);
+  }, [gamePhase, setGamePhase, addLogEntry, isOnlineNonHost]);
 
   const handleReset = useCallback(() => {
+    if (isOnlineNonHost) return;
     resetGame();
     clearLog();
     resetUsedRiddles();
     toast.info("Game reset");
-  }, [resetGame, clearLog, resetUsedRiddles]);
+  }, [resetGame, clearLog, resetUsedRiddles, isOnlineNonHost]);
 
   const handleEnd = useCallback(() => {
+    if (isOnlineNonHost) return;
     setGamePhase("ended");
     addLogEntry("Game ended!");
 
     if (teams.length > 0) {
       sounds.victory.play();
-      confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.4 },
-        colors: ["#4C8DFF", "#C6F135", "#FFB830", "#E11D3C", "#A0AEC0"],
-      });
-      setTimeout(() => {
-        confetti({
-          particleCount: 150,
-          spread: 120,
-          origin: { y: 0.5, x: 0.3 },
-        });
-      }, 300);
-      setTimeout(() => {
-        confetti({
-          particleCount: 150,
-          spread: 120,
-          origin: { y: 0.5, x: 0.7 },
-        });
-      }, 600);
+      confetti({ particleCount: 200, spread: 100, origin: { y: 0.4 }, colors: ["#4C8DFF", "#C6F135", "#FFB830", "#E11D3C", "#A0AEC0"] });
+      setTimeout(() => confetti({ particleCount: 150, spread: 120, origin: { y: 0.5, x: 0.3 } }), 300);
+      setTimeout(() => confetti({ particleCount: 150, spread: 120, origin: { y: 0.5, x: 0.7 } }), 600);
     }
-
     toast.success("Game ended! Check the leaderboard for final standings.");
-  }, [setGamePhase, teams, addLogEntry]);
+  }, [setGamePhase, teams, addLogEntry, isOnlineNonHost]);
 
   const handleAdvanceTurn = useCallback(() => {
+    if (isOnlineNonHost) return;
     advanceTurn();
     sounds.turnAdvance.play();
-    const nextName =
-      teams[(currentTeamIndex + 1) % teams.length]?.name || "next team";
+    const nextName = teams[(currentTeamIndex + 1) % teams.length]?.name || "next team";
     addLogEntry(`Turn advanced to ${nextName}`);
-  }, [advanceTurn, teams, currentTeamIndex, addLogEntry]);
+  }, [advanceTurn, teams, currentTeamIndex, addLogEntry, isOnlineNonHost]);
 
   const isActive = gamePhase === "active";
   const isPaused = gamePhase === "paused";
@@ -126,25 +112,19 @@ export function GameControlBar() {
       <div className="flex items-center justify-between">
         {/* Game status */}
         <div className="flex items-center gap-3">
-          <div
-            className={`w-2.5 h-2.5 rounded-full ${
-              gamePhase === "active"
-                ? "bg-accent-success animate-pulse"
-                : gamePhase === "paused"
-                  ? "bg-accent-gold"
-                  : gamePhase === "ended"
-                    ? "bg-danger"
-                    : "bg-white/15"
-            }`}
-          />
+          {isOnlineNonHost && (
+            <span className="text-xs font-mono px-2 py-0.5 rounded-full"
+              style={{ background: "rgba(159,76,47,0.15)", color: "#9F4C2F", border: "1px solid rgba(159,76,47,0.3)" }}>
+              Spectating
+            </span>
+          )}
+          <div className={`w-2.5 h-2.5 rounded-full ${
+            gamePhase === "active" ? "bg-accent-success animate-pulse"
+            : gamePhase === "paused" ? "bg-accent-gold"
+            : gamePhase === "ended" ? "bg-danger" : "bg-white/15"
+          }`} />
           <span className="text-white/60 text-sm font-display font-medium">
-            {gamePhase === "idle"
-              ? "Not Started"
-              : gamePhase === "active"
-                ? "Live"
-                : gamePhase === "paused"
-                  ? "Paused"
-                  : "Ended"}
+            {gamePhase === "idle" ? "Not Started" : gamePhase === "active" ? "Live" : gamePhase === "paused" ? "Paused" : "Ended"}
           </span>
         </div>
 
@@ -152,95 +132,53 @@ export function GameControlBar() {
         {currentTeam && isActive && (
           <div className="flex items-center gap-2">
             <span className="text-white/40 text-sm">Turn:</span>
-            <div
-              className="w-6 h-6 rounded-lg flex items-center justify-center"
-              style={{
-                backgroundColor: currentTeam.color + "20",
-                border: `1px solid ${currentTeam.color}40`,
-                color: currentTeam.color,
-              }}
-            >
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: currentTeam.color + "20", border: `1px solid ${currentTeam.color}40`, color: currentTeam.color }}>
               <TeamIconDisplay icon={currentTeam.icon} size={12} />
             </div>
-            <span className="text-white font-display font-medium text-sm">
-              {currentTeam.name}
-            </span>
+            <span className="text-white font-display font-medium text-sm">{currentTeam.name}</span>
           </div>
         )}
 
         {/* Action buttons */}
         <div className="flex items-center gap-2">
-          {gamePhase === "idle" && (
-            <Button
-              onClick={handleStart}
-              disabled={teams.length < 2}
-              variant="primary"
-              aria-label="Start game"
-            >
-              <Play size={18} aria-hidden="true" />
-              Start
+          {!isOnlineNonHost && gamePhase === "idle" && (
+            <Button onClick={handleStart} disabled={teams.length < 2} variant="primary" aria-label="Start game">
+              <Play size={18} /> Start
             </Button>
           )}
 
-          {(isActive || isPaused) && (
+          {!isOnlineNonHost && (isActive || isPaused) && (
             <>
-              <Button
-                onClick={handlePause}
-                variant={isActive ? "secondary" : "primary"}
-              >
+              <Button onClick={handlePause} variant={isActive ? "secondary" : "primary"}>
                 {isActive ? <Pause size={18} /> : <Play size={18} />}
                 {isActive ? "Pause" : "Resume"}
               </Button>
 
               {isActive && (
-                <Button
-                  onClick={handleAdvanceTurn}
-                  variant="secondary"
-                >
-                  <SkipForward size={18} />
-                  Skip
+                <Button onClick={handleAdvanceTurn} variant="secondary">
+                  <SkipForward size={18} /> Skip
                 </Button>
               )}
 
-              <Button
-                onClick={() => setConfirmAction("end")}
-                variant="danger"
-              >
-                <StopCircle size={18} />
-                End
+              <Button onClick={() => setConfirmAction("end")} variant="danger">
+                <StopCircle size={18} /> End
               </Button>
             </>
           )}
 
-          <Button
-            onClick={() => setConfirmAction("reset")}
-            variant="ghost"
-          >
-            <RotateCcw size={18} />
-            Reset
-          </Button>
+          {!isOnlineNonHost && (
+            <Button onClick={() => setConfirmAction("reset")} variant="ghost">
+              <RotateCcw size={18} /> Reset
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Confirm dialogs */}
-      <ConfirmDialog
-        isOpen={confirmAction === "reset"}
-        onClose={() => setConfirmAction(null)}
-        onConfirm={handleReset}
-        title="Reset Game"
-        message="This will remove all teams and reset the game state. This cannot be undone."
-        confirmLabel="Reset"
-        variant="danger"
-      />
-      <ConfirmDialog
-        isOpen={confirmAction === "end"}
-        onClose={() => setConfirmAction(null)}
-        onConfirm={handleEnd}
-        title="End Game"
-        message="Are you sure you want to end the game? Final standings will be recorded."
-        confirmLabel="End Game"
-        variant="warning"
-      />
+      <ConfirmDialog isOpen={confirmAction === "reset"} onClose={() => setConfirmAction(null)}
+        onConfirm={handleReset} title="Reset Game" message="This will remove all teams and reset the game state." confirmLabel="Reset" variant="danger" />
+      <ConfirmDialog isOpen={confirmAction === "end"} onClose={() => setConfirmAction(null)}
+        onConfirm={handleEnd} title="End Game" message="Are you sure you want to end the game?" confirmLabel="End Game" variant="warning" />
     </div>
   );
 }

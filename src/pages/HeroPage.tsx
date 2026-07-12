@@ -91,11 +91,17 @@ export function HeroPage() {
 
   return (
     <div
-      className="min-h-screen bg-white tracking-[-0.02em]"
-      style={{ fontFamily: "'Inter', sans-serif" }}
+      className="min-h-screen tracking-[-0.02em]"
+      style={{
+        fontFamily: "'Inter', sans-serif",
+        backgroundColor: "var(--color-bg-base)",
+      }}
     >
       {/* ─── Fixed Navigation ─── */}
-      <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between p-4 sm:p-5">
+      <nav
+        className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between p-4 sm:p-5"
+        style={{ "--color-white": "#fff" } as React.CSSProperties}
+      >
         {/* Left: Logo */}
         <div className="flex items-center gap-2">
           <svg width="26" height="26" viewBox="0 0 256 256" fill="#ffffff">
@@ -167,7 +173,11 @@ export function HeroPage() {
       {/* ─── Hero Section ─── */}
       <section
         className="relative w-full overflow-hidden h-screen bg-black"
-        style={{ height: "100dvh" }}
+        style={{
+          height: "100dvh",
+          // Restore white for hero text on dark background
+          "--color-white": "#fff",
+        } as React.CSSProperties}
       >
         {/* Layer 1: Base image (z-10) with Ken Burns zoom-out */}
         <div

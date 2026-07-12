@@ -192,6 +192,9 @@
   --color-glass-jade-25: rgba(159, 76, 47, 0.25);
   --color-glass-jade-30: rgba(159, 76, 47, 0.30);
 
+  /* Override white to use theme text color — no pure white in volcanic theme */
+  --color-white: var(--color-fg-default);
+
   /* Shadows — soft, warm, minimal elevation */
   --shadow-ink-heavy: 0 8px 40px -8px rgba(0, 0, 0, 0.06);
   --shadow-accent-subtle: 0 8px 40px -8px rgba(159, 76, 47, 0.06);

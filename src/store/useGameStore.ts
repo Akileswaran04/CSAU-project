@@ -262,8 +262,8 @@ export const useGameStore = create<GameState>()(
         return {
           ...current,
           ...p,
-          // Online mode is temporarily unavailable — force to offline
-          gameMode: p?.gameMode === "online" ? "offline" : (p?.gameMode as GameMode) ?? current.gameMode,
+          // Keep persisted gameMode if valid, otherwise fall back to default
+          gameMode: (p?.gameMode as GameMode) ?? current.gameMode,
         };
       },
     }
