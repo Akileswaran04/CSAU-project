@@ -1,6 +1,7 @@
 import { ActionLog } from "../components/controls/ActionLog";
 import { useLogStore } from "../store/useLogStore";
 import { Download } from "lucide-react";
+import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 
 export function LogsPage() {
@@ -41,18 +42,18 @@ export function LogsPage() {
             <h1 className="text-3xl font-display font-bold text-white">
               Game Log
             </h1>
-            <p className="text-white/40 mt-1">
+            <p className="text-fg-muted mt-1">
               Complete event history — {entries.length} entries
             </p>
           </div>
-          <button
+          <Button
             onClick={handleExport}
             disabled={entries.length === 0}
-            className="glass-button flex items-center gap-2 px-4 py-2.5 font-display font-medium text-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+            variant="secondary"
           >
             <Download size={18} />
             Export CSV
-          </button>
+          </Button>
         </div>
 
         <ActionLog />

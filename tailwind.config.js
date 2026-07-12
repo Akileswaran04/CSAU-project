@@ -4,62 +4,62 @@ export default {
   theme: {
     extend: {
       colors: {
-        /* ── Ink Surface Tones ── */
+        /* ── Surface Tones ── */
         ink: {
-          900: "#070809",
-          800: "#0B0D0E",
-          700: "#111415",
-          600: "#181C1E",
-          500: "#1E2325",
+          900: "#07080A",
+          800: "#0B0E13",
+          700: "#11151C",
+          600: "#1A1F28",
+          500: "#242A36",
         },
         /* ── Backgrounds ── */
         bg: {
-          base: "#0B0D0E",
-          surface: "#111415",
-          elevated: "#181C1E",
+          base: "#0B0E13",
+          surface: "#11151C",
+          elevated: "#1A1F28",
         },
         /* ── Glass System ── */
         glass: {
-          tint: "rgba(255, 122, 69, 0.04)",
+          tint: "rgba(76, 141, 255, 0.04)",
           light: "rgba(255, 255, 255, 0.03)",
           medium: "rgba(255, 255, 255, 0.06)",
-          heavy: "rgba(255, 255, 255, 0.1)",
+          heavy: "rgba(255, 255, 255, 0.10)",
           border: "rgba(255, 255, 255, 0.08)",
         },
-        /* ── Copper / Amber ── */
-        copper: {
-          DEFAULT: "#FF7A45",
-          hover: "#FF9A6C",
-          muted: "rgba(255, 122, 69, 0.15)",
-          glow: "rgba(255, 122, 69, 0.4)",
+        /* ── Steel Blue (Primary) ── */
+        steel: {
+          DEFAULT: "#4C8DFF",
+          hover: "#6FA3FF",
+          muted: "rgba(76, 141, 255, 0.15)",
+          glow: "rgba(76, 141, 255, 0.4)",
         },
         /* ── Semantic Accents ── */
         accent: {
-          primary: "#FF7A45",
-          success: "#C6F135",
-          danger: "#E11D3C",
-          gold: "#FFB830",
+          primary: "#4C8DFF",
+          success: "#3FBF7F",
+          danger: "#E5484D",
+          gold: "#E8B94E",
           silver: "#A0AEC0",
           bronze: "#CD7F32",
         },
         /* ── Difficulty Colors ── */
         diff: {
-          easy: "#C6F135",
-          medium: "#FFB830",
-          hard: "#E11D3C",
+          easy: "#3FBF7F",
+          medium: "#F2994A",
+          hard: "#E5484D",
         },
         /* Aliases for backward compatibility */
         lime: {
-          DEFAULT: "#C6F135",
-          muted: "rgba(198, 241, 53, 0.15)",
+          DEFAULT: "#3FBF7F",
+          muted: "rgba(63, 191, 127, 0.15)",
         },
         crimson: {
-          DEFAULT: "#E11D3C",
-          muted: "rgba(225, 29, 60, 0.15)",
+          DEFAULT: "#E5484D",
+          muted: "rgba(229, 72, 77, 0.15)",
         },
         gold: {
-          DEFAULT: "#FFB830",
-          muted: "rgba(255, 184, 48, 0.15)",
+          DEFAULT: "#E8B94E",
+          muted: "rgba(232, 185, 78, 0.15)",
         },
         silver: "#A0AEC0",
         bronze: "#CD7F32",
@@ -74,11 +74,11 @@ export default {
       },
       boxShadow: {
         glass: "0 8px 40px -8px rgba(0, 0, 0, 0.5)",
-        "glass-tinted": "0 8px 40px -8px rgba(255, 122, 69, 0.1)",
-        "glow-copper": "0 0 40px rgba(255, 122, 69, 0.2)",
-        "glow-lime": "0 0 40px rgba(198, 241, 53, 0.2)",
-        "glow-crimson": "0 0 40px rgba(225, 29, 60, 0.2)",
-        "glow-gold": "0 0 40px rgba(255, 184, 48, 0.2)",
+        "glass-tinted": "0 8px 40px -8px rgba(76, 141, 255, 0.1)",
+        "glow-steel": "0 0 40px rgba(76, 141, 255, 0.2)",
+        "glow-lime": "0 0 40px rgba(63, 191, 127, 0.2)",
+        "glow-crimson": "0 0 40px rgba(229, 72, 77, 0.2)",
+        "glow-gold": "0 0 40px rgba(232, 185, 78, 0.2)",
       },
       borderRadius: {
         "2xl": "16px",
@@ -86,12 +86,12 @@ export default {
       },
       keyframes: {
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(255, 122, 69, 0.3)" },
-          "50%": { boxShadow: "0 0 40px rgba(255, 122, 69, 0.6)" },
+          "0%, 100%": { boxShadow: "0 0 20px rgba(76, 141, 255, 0.3)" },
+          "50%": { boxShadow: "0 0 40px rgba(76, 141, 255, 0.6)" },
         },
         "forced-alarm": {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(225, 29, 60, 0.4)" },
-          "50%": { boxShadow: "0 0 50px rgba(225, 29, 60, 0.7)" },
+          "0%, 100%": { boxShadow: "0 0 20px rgba(229, 72, 77, 0.4)" },
+          "50%": { boxShadow: "0 0 50px rgba(229, 72, 77, 0.7)" },
         },
         "slide-up": {
           "0%": { transform: "translateY(20px)", opacity: "0" },

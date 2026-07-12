@@ -7,6 +7,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "../ui/dialog";
+import { Button } from "../ui/button";
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -27,14 +28,7 @@ export function ConfirmDialog({
   confirmLabel = "Confirm",
   variant = "danger",
 }: ConfirmDialogProps) {
-  const confirmStyles = {
-    danger:
-      "bg-danger hover:bg-danger text-white glow-danger",
-    warning:
-      "bg-gold hover:bg-yellow-400 text-bg-base shadow-glow-gold",
-    default:
-      "bg-jade hover:bg-jade text-white glow-jade",
-  };
+  const confirmVariant = variant === "danger" ? "danger" as const : "primary" as const;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -43,23 +37,23 @@ export function ConfirmDialog({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <DialogBody>
-          <p className="text-white/60 mb-2 leading-relaxed">{message}</p>
+          <p className="text-fg-muted mb-2 leading-relaxed">{message}</p>
         </DialogBody>
         <DialogFooter>
           <DialogClose asChild>
-            <button className="glass-button px-5 py-2.5 text-white/60 hover:text-white hover:bg-white/[0.06] font-medium">
+            <Button variant="secondary">
               Cancel
-            </button>
+            </Button>
           </DialogClose>
-          <button
+          <Button
             onClick={() => {
               onConfirm();
               onClose();
             }}
-            className={`glass-button px-5 py-2.5 font-semibold transition-all ${confirmStyles[variant]}`}
+            variant={confirmVariant}
           >
             {confirmLabel}
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

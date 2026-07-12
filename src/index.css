@@ -120,7 +120,7 @@
   --color-fg-default: #1A1D23;
   --color-fg-muted: #4B5563;
   --color-fg-subtle: #6B7280;
-  --color-fg-faint: #9CA3AF;
+  --color-fg-faint: #5C6B7D;
 
   /* Accent gold */
   --color-accent-gold: #B9860B;
@@ -226,8 +226,8 @@
   /* Foreground text — solid values, never opacity-based */
   --color-fg-default: #EDF1F5;
   --color-fg-muted: #94A3B0;
-  --color-fg-subtle: #64748B;
-  --color-fg-faint: #475569;
+  --color-fg-subtle: #7B8BA0;
+  --color-fg-faint: #6B7F95;
 
   /* Component references */
   --color-glass-tint: rgba(76, 141, 255, 0.04);

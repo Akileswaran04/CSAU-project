@@ -14,6 +14,7 @@ import { boardCells } from "../data/boardConfig";
 import { saveMatchResult } from "../lib/leaderboardHistoryService";
 import { useLeaderboardHistoryStore } from "../store/useLeaderboardHistoryStore";
 import { Trophy, Crown, Medal, Award, Download, RotateCcw, Share2, Minimize2, ChevronUp, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { Button } from "../components/ui/button";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
 
@@ -181,45 +182,42 @@ function VictoryScreen() {
               </div>
               <div className="flex-1 text-left">
                 <p className="text-white font-display font-semibold">{team.name}</p>
-                <p className="text-white/40 text-xs font-mono">
+                <p className="text-fg-muted text-xs font-mono">
                   {team.riddlesCorrect}/{team.riddlesAttempted} riddles correct
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-white font-mono font-bold text-xl">{team.score}</p>
-                <p className="text-white/30 text-xs font-mono">pts</p>
+                <p className="text-fg-subtle text-xs font-mono">pts</p>
               </div>
             </motion.div>
           ))}
         </div>
 
         <div className="flex gap-3 justify-center flex-wrap">
-          <button
+          <Button
             onClick={handleShare}
-            className="glass-button flex items-center gap-2 px-5 py-3 font-display font-medium text-white/70 hover:text-white"
+            variant="secondary"
             aria-label="Share results via system share or clipboard"
           >
             <Share2 size={18} />
-            Share Results
-          </button>
-          <button
+            Share
+          </Button>
+          <Button
             onClick={handleExport}
-            className="glass-button flex items-center gap-2 px-5 py-3 font-display font-medium text-white/70 hover:text-white"
+            variant="secondary"
           >
             <Download size={18} />
             Export CSV
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handlePlayAgain}
-            className="glass-button flex items-center gap-2 px-5 py-3 font-display font-semibold text-white"
-            style={{
-              background: "var(--color-glass-jade-20)",
-              borderColor: "var(--color-glass-jade-30)",
-            }}
+            variant="primary"
+            size="lg"
           >
             <RotateCcw size={18} />
             Play Again
-          </button>
+          </Button>
         </div>
       </motion.div>
     </motion.div>

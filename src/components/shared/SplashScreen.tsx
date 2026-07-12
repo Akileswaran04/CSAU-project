@@ -162,7 +162,7 @@ export function SplashScreen({
           />
         </motion.div>
 
-        {/* Tap to continue hint */}
+        {/* Click to continue hint */}
         <motion.p
           className="text-[10px] font-mono tracking-wider uppercase"
           style={{ color: "var(--color-fg-faint)" }}
@@ -170,7 +170,7 @@ export function SplashScreen({
           animate={{ opacity: 1 }}
           transition={{ delay: 2, duration: 0.8 }}
         >
-          Tap anywhere to continue
+          Click or tap to continue
         </motion.p>
       </div>
 

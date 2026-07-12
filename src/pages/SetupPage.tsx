@@ -3,13 +3,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Edit3, Trash2, Lock, Users } from "lucide-react";
+import { Plus, Edit3, Trash2, Lock, Users, Play } from "lucide-react";
 import { useGameStore, TEAM_ICONS, type TeamIcon } from "../store/useGameStore";
 import { TeamIconDisplay } from "../components/shared/TeamIconDisplay";
 import { PanelShell } from "../components/shared/PanelShell";
 import { Modal } from "../components/shared/Modal";
 import { ConfirmDialog } from "../components/shared/ConfirmDialog";
 import { Badge } from "../components/shared/Badge";
+import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 
 const teamSchema = z.object({
@@ -124,18 +125,15 @@ export function SetupPage() {
               Register teams for the Riddle Rush challenge
             </p>
           </div>
-          <button
+          <Button
             onClick={openAddModal}
             disabled={isLocked}
-            className={`glass-button flex items-center gap-2 px-5 py-3 font-display font-semibold transition-all ${
-              isLocked
-                ? "text-white/20 cursor-not-allowed"
-                : "text-white"
-            }`}                style={isLocked ? undefined : { background: 'var(--color-glass-jade-20)', borderColor: 'var(--color-glass-jade-20)' }}
+            variant="primary"
+            size="lg"
           >
             {isLocked ? <Lock size={18} /> : <Plus size={18} />}
             Add Team
-          </button>
+          </Button>
         </div>
 
         {/* Locked banner */}
@@ -160,8 +158,8 @@ export function SetupPage() {
               style={{ background: 'var(--color-glass-jade-08)', border: '1px solid var(--color-glass-jade-12)' }}>
               <Users size={28} className="text-jade/40" />
             </div>
-            <p className="text-white/40 text-lg font-display">No teams registered yet</p>
-            <p className="text-white/25 text-sm mt-1">
+            <p className="text-fg-muted text-lg font-display">No teams registered yet</p>
+            <p className="text-fg-subtle text-sm mt-1">
               Add teams to start the game
             </p>
           </div>
@@ -199,7 +197,7 @@ export function SetupPage() {
                           </Badge>
                         </div>
                         <div className="mt-2 space-y-1">
-                          <p className="text-white/50 text-sm flex items-center gap-2">
+                          <p className="text-fg-muted text-sm flex items-center gap-2">
                             <Users size={14} className="text-white/30" />
                             {team.participants.map((p) => p.name).join(" & ")}
                           </p>
@@ -207,19 +205,23 @@ export function SetupPage() {
                       </div>
                       {!isLocked && (
                         <div className="flex gap-2 shrink-0">
-                          <button
+                          <Button
                             onClick={() => openEditModal(team.id)}
-                            className="glass-button p-2 text-white/40 hover:text-white"
+                            variant="ghost"
+                            size="sm"
+                            className="text-fg-subtle hover:text-white"
+                            aria-label="Edit team"
                           >
                             <Edit3 size={16} />
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => setDeleteConfirm(team.id)}
-                            className="glass-button p-2 text-danger/60 hover:text-danger"
-                            style={{ background: 'rgba(225, 29, 60, 0.08)' }}
+                            variant="danger"
+                            size="sm"
+                            aria-label="Remove team"
                           >
                             <Trash2 size={16} />
-                          </button>
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -240,7 +242,7 @@ export function SetupPage() {
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div>
-            <label className="block text-sm font-display font-medium text-white/60 mb-1.5">
+            <label className="block text-sm font-display font-medium text-fg-muted mb-1.5">
               Team Name
             </label>
             <input
@@ -254,7 +256,7 @@ export function SetupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-display font-medium text-white/60 mb-1.5">
+            <label className="block text-sm font-display font-medium text-fg-muted mb-1.5">
               Participant 1
             </label>
             <input
@@ -270,7 +272,7 @@ export function SetupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-display font-medium text-white/60 mb-1.5">
+            <label className="block text-sm font-display font-medium text-fg-muted mb-1.5">
               Participant 2
             </label>
             <input
@@ -286,7 +288,7 @@ export function SetupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-display font-medium text-white/60 mb-2">
+            <label className="block text-sm font-display font-medium text-fg-muted mb-2">
               Team Color
             </label>
             <div className="flex gap-2">
@@ -311,7 +313,7 @@ export function SetupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-display font-medium text-white/60 mb-2">
+            <label className="block text-sm font-display font-medium text-fg-muted mb-2">
               Team Icon
             </label>
             <div className="flex gap-2">
@@ -347,20 +349,19 @@ export function SetupPage() {
           </div>
 
           <div className="flex gap-3 justify-end pt-2">
-            <button
+            <Button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="glass-button px-4 py-2.5 text-white/60 hover:text-white"
+              variant="secondary"
             >
               Cancel
-            </button>
-          <button
-            type="submit"
-            className="glass-button px-6 py-2.5 font-display font-semibold text-white"
-            style={{ background: 'var(--color-glass-jade-25)', borderColor: 'var(--color-glass-jade-30)' }}
-          >
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+            >
               {editingTeam ? "Save Changes" : "Add Team"}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

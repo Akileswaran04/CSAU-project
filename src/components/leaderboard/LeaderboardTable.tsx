@@ -181,7 +181,7 @@ function TeamRow({ team, rank }: { team: Team; rank: number }) {
             />
           )}
         </div>
-        <p className="text-white/30 text-xs font-mono">
+        <p className="text-fg-muted text-xs font-mono">
           Cell {Math.min(team.position + 1, 32)}
         </p>
       </div>
@@ -200,7 +200,7 @@ function TeamRow({ team, rank }: { team: Team; rank: number }) {
 
       <div className="text-right">
         <p className="text-white font-mono font-bold text-lg">{team.score}</p>
-        <p className="text-white/30 text-xs font-mono">pts</p>
+        <p className="text-fg-subtle text-xs font-mono">pts</p>
       </div>
     </motion.div>
   );
@@ -318,13 +318,13 @@ export function LeaderboardFullPage() {
                         <span className="text-lg">👑</span>
                       )}
                     </div>
-                    <p className="text-white/40 text-sm">
-                      {team.participants.map((p) => p.name).join(" & ")}
-                    </p>
+            <p className="text-fg-muted text-sm">
+              {team.participants.map((p) => p.name).join(" & ")}
+            </p>
                   </div>
                   <div className="flex items-center gap-6">
                     <div className="text-center">
-                      <p className="text-white/30 text-xs uppercase tracking-wider font-mono">
+                      <p className="text-fg-muted text-xs uppercase tracking-wider font-mono">
                         Position
                       </p>
                       <p className="text-white font-mono font-bold text-lg">
@@ -332,7 +332,7 @@ export function LeaderboardFullPage() {
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-white/30 text-xs uppercase tracking-wider font-mono">
+                      <p className="text-fg-muted text-xs uppercase tracking-wider font-mono">
                         Riddles
                       </p>
                       <p className="text-white font-mono font-bold text-lg">
@@ -340,7 +340,7 @@ export function LeaderboardFullPage() {
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-white/30 text-xs uppercase tracking-wider font-mono">
+                      <p className="text-fg-muted text-xs uppercase tracking-wider font-mono">
                         Score
                       </p>
                       <p className="text-white font-mono font-bold text-2xl">

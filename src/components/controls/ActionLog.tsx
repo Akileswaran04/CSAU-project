@@ -121,13 +121,13 @@ export function ActionLog() {
                         );
                       })()}
                       <span
-                        className="text-white/70 text-sm font-display font-medium truncate"
+                        className="text-fg-default text-sm font-display font-medium truncate"
                         style={teamColor ? { color: teamColor + "cc" } : undefined}
                       >
                         {entry.teamName}
                       </span>
                     </div>
-                    <p className="text-white/40 text-xs mt-0.5">
+                    <p className="text-fg-muted text-xs mt-0.5">
                       {entry.message}
                     </p>
                   </div>

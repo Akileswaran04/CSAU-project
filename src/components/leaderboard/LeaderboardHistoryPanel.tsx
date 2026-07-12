@@ -138,10 +138,9 @@ function RecentMatchCard({ match, index }: { match: LocalMatchType; index: numbe
           <Trophy size={12} style={{ color: "var(--color-accent-gold)" }} />
           <span className="text-white text-sm font-display font-medium truncate">
             {match.winnerName}
-          </span>
-          <span className="text-white/25 text-xs shrink-0">won</span>
+          </span>              <span className="text-fg-subtle text-xs shrink-0">won</span>
         </div>
-        <span className="text-white/20 text-[10px] font-mono shrink-0">{formattedDate}</span>
+        <span className="text-fg-faint text-[10px] font-mono shrink-0">{formattedDate}</span>
       </div>
 
       {/* Team list */}
@@ -152,8 +151,8 @@ function RecentMatchCard({ match, index }: { match: LocalMatchType; index: numbe
             <div key={team.teamName} className="flex items-center gap-2 text-xs">
               <span className="text-white/20 font-mono w-4 shrink-0">#{team.rank}</span>
               <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: team.teamColor }} />
-              <span className="text-white/50 truncate flex-1">{team.teamName}</span>
-              <span className="text-white/40 font-mono">{team.score} pts</span>
+              <span className="text-fg-muted truncate flex-1">{team.teamName}</span>
+              <span className="text-fg-muted font-mono">{team.score} pts</span>
             </div>
           ))}
       </div>

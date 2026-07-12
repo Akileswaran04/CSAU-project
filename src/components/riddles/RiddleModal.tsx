@@ -9,6 +9,7 @@ import {
   DialogBody,
 } from "../ui/dialog";
 import { Badge } from "../shared/Badge";
+import { Button } from "../ui/button";
 import { useGameStore } from "../../store/useGameStore";
 import { useRiddleStore } from "../../store/useRiddleStore";
 import { useLogStore } from "../../store/useLogStore";
@@ -284,10 +285,10 @@ export function RiddleModal() {
                   {currentTeam.name.charAt(0)}
                 </div>
                 <div>
-                  <p className="text-white font-display font-medium">
-                    {currentTeam.name}
-                  </p>
-                  <p className="text-white/40 text-sm">Current turn</p>
+                <p className="text-white font-display font-medium">
+                  {currentTeam.name}
+                </p>
+                <p className="text-fg-muted text-sm">Current turn</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -377,48 +378,43 @@ export function RiddleModal() {
               transition={{ delay: 0.3 }}
               className="flex gap-4 pt-2"
             >
-              <button
+              <Button
                 onClick={() => handleVerdict(true)}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-display font-bold text-lg text-white transition-all hover:scale-[1.02] active:scale-95"
-                style={{
-                  background: 'var(--color-accent-success-muted)',
-                  border: '1px solid rgba(198, 241, 53, 0.3)',
-                  boxShadow: '0 8px 30px -8px rgba(198, 241, 53, 0.2)',
-                }}
+                variant="primary"
+                size="lg"
+                className="flex-1 py-4 text-lg font-bold hover:scale-[1.02] active:scale-95"
               >
                 <Check size={24} />
                 Correct
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => handleVerdict(false)}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-display font-bold text-lg text-white transition-all hover:scale-[1.02] active:scale-95"
-                style={{
-                  background: 'var(--color-accent-danger-muted)',
-                  border: '1px solid rgba(225, 29, 60, 0.3)',
-                  boxShadow: '0 8px 30px -8px rgba(225, 29, 60, 0.2)',
-                }}
+                variant="danger"
+                size="lg"
+                className="flex-1 py-4 text-lg font-bold hover:scale-[1.02] active:scale-95"
               >
                 <X size={24} />
                 Incorrect
-              </button>
+              </Button>
             </motion.div>
 
             {/* Skip option */}
             <div className="flex justify-center">
-              <button
+              <Button
                 onClick={handleSkip}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-white/30 hover:text-white/50 transition-colors"
+                variant="ghost"
+                size="sm"
               >
                 <SkipForward size={16} />
                 Skip / Re-roll
-              </button>
+              </Button>
             </div>
 
             {/* Keyboard shortcuts hint */}
-            <p className="text-center text-white/20 text-xs font-mono">
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-white/40">C</kbd> Correct ·{" "}
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-white/40">X</kbd> Incorrect ·{" "}
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-white/40">S</kbd> Skip
+            <p className="text-center text-fg-faint text-xs font-mono">
+              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-fg-subtle">C</kbd> Correct ·{" "}
+              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-fg-subtle">X</kbd> Incorrect ·{" "}
+              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-fg-subtle">S</kbd> Skip
             </p>
           </div>
         </DialogBody>

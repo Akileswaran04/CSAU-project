@@ -5,6 +5,7 @@ import { GameBoard3D } from "../components/board/GameBoard3D";
 import { LeaderboardTable } from "../components/leaderboard/LeaderboardTable";
 import { ActionLog } from "../components/controls/ActionLog";
 import { useGameStore } from "../store/useGameStore";
+import { Button } from "../components/ui/button";
 import { Trophy, Eye, Play, Pause, RefreshCw, Minimize2, Maximize2 } from "lucide-react";
 
 /**

@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, X } from "lucide-react";
+import { ArrowUpRight, X, Play } from "lucide-react";
+import { BrandLogo } from "../components/shared/BrandLogo";
+import { Button } from "../components/ui/button";
 
 /* ─── Framer Motion Variants ─── */
 const fadeDown = {
@@ -30,24 +32,29 @@ const wordReveal = {
   }),
 };
 
-/* ─── Nav Links ─── */
-const navItems = ["Story", "Expertise", "Studios", "Feedback"];
-
-/* ─── Stats Data ─── */
-const statItems = [
-  { number: "300", label: "CRAFTED\nBRANDS" },
-  { number: "200", label: "DIGITAL\nPRODUCTS" },
-  { number: "100", label: "VENTURES\nFUNDED" },
+const navItems = [
+  { label: "Setup", path: "/setup" },
+  { label: "Board", path: "/board" },
+  { label: "Spectate", path: "/spectate" },
+  { label: "Leaderboard", path: "/leaderboard" },
 ];
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   HERO PAGE
-   ═══════════════════════════════════════════════════════════════════════════ */
+const statItems = [
+  { number: "32", label: "BOARD\nCELLS" },
+  { number: "10", label: "RIDDLE\nSQUARES" },
+  { number: "24", label: "BRAIN\nTEASERS" },
+];
+
 export function HeroPage() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const accentColor = "var(--color-accent-primary)";
+
+  const goTo = (path: string) => {
+    setMenuOpen(false);
+    navigate(path);
+  };
 
   return (
     <div className="relative min-h-screen overflow-hidden font-['Inter',sans-serif]">
@@ -74,30 +81,32 @@ export function HeroPage() {
         {/* ══════ NAV ══════ */}
         <nav className="flex items-center justify-between px-5 sm:px-8 md:px-12 pt-5 md:pt-6">
           {/* Left: Logo */}
-          <motion.div
+          <motion.button
             variants={fadeDown}
             initial="hidden"
             animate="visible"
             custom={0}
-            className="w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0"
-            style={{ borderColor: accentColor }}
+            onClick={() => navigate("/")}
+            className="shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+            aria-label="Riddle Rush home"
           >
-            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: accentColor }} />
-          </motion.div>
+            <BrandLogo size={32} />
+          </motion.button>
 
           {/* Center: Nav Links (hidden mobile) */}
           <div className="hidden md:flex items-center gap-10">
             {navItems.map((item, i) => (
-              <motion.span
-                key={item}
+              <motion.button
+                key={item.label}
                 variants={fadeDown}
                 initial="hidden"
                 animate="visible"
                 custom={i + 1}
+                onClick={() => goTo(item.path)}
                 className="text-sm font-semibold tracking-widest uppercase cursor-pointer hover:opacity-70 transition-opacity"
               >
-                {item}
-              </motion.span>
+                {item.label}
+              </motion.button>
             ))}
           </div>
 
@@ -170,24 +179,25 @@ export function HeroPage() {
               className="text-[10px] sm:text-xs md:text-sm font-semibold tracking-widest uppercase max-w-[130px] sm:max-w-[160px] md:max-w-xs"
               style={{ color: "var(--color-fg-muted)" }}
             >
-              Shaping Bold<br />Visions Into Power<br />For Your Tribe
+              Outwit<br />The Board<br />Win The Race
             </motion.p>
-            <motion.a
+            <motion.div
               variants={fadeUp}
               initial="hidden"
               animate="visible"
               custom={6}
-              href="/setup"
-              onClick={(e) => { e.preventDefault(); navigate("/setup"); }}
-              className="inline-flex items-center gap-1.5 whitespace-nowrap font-semibold cursor-pointer hover:opacity-80 transition-opacity"
-              style={{
-                color: accentColor,
-                fontSize: "clamp(1rem, 2.5vw, 1.5rem)",
-              }}
             >
-              Work With Us
-              <ArrowUpRight size={18} className="sm:w-[22px] sm:h-[22px]" />
-            </motion.a>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => goTo("/setup")}
+                className="text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4"
+              >
+                <Play size={22} />
+                Start Game
+                <ArrowUpRight size={20} />
+              </Button>
+            </motion.div>
           </div>
 
           {/* Row B: Description + Main Heading */}
@@ -203,20 +213,20 @@ export function HeroPage() {
                 className="text-[9px] sm:text-xs md:text-sm font-semibold tracking-widest uppercase text-left md:text-right"
                 style={{ color: "var(--color-fg-muted)" }}
               >
-                Creative Studios Built Around Elevating Your Vision Into Striking Reality
+                Roll the dice, solve riddles, and race your team to the finish line
               </p>
             </motion.div>
 
             {/* Main Heading — 3 words stacked */}
             <div className="text-right">
-              {["Fearless", "Vision", "Delivered"].map((word, i) => (
+              {["Riddle", "Rush", "Play"].map((word, i) => (
                 <div key={word} className="overflow-hidden">
                   <motion.span
                     variants={wordReveal}
                     initial="hidden"
                     animate="visible"
                     custom={i}
-                    className="block font-semibold uppercase leading-[0.88]"
+                    className="block font-display font-semibold uppercase leading-[0.88]"
                     style={{
                       fontSize: "clamp(2rem, 9vw, 9rem)",
                       color: "var(--color-fg-default)",
@@ -244,12 +254,7 @@ export function HeroPage() {
           >
             {/* Top row: logo + close */}
             <div className="flex items-center justify-between">
-              <div
-                className="w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0"
-                style={{ borderColor: accentColor }}
-              >
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: accentColor }} />
-              </div>
+              <BrandLogo size={32} />
               <button
                 onClick={() => setMenuOpen(false)}
                 className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
@@ -263,26 +268,28 @@ export function HeroPage() {
             {/* Nav links */}
             <div className="flex flex-col gap-8 mt-16">
               {navItems.map((item) => (
-                <span
-                  key={item}
-                  className="text-3xl font-semibold tracking-widest uppercase cursor-pointer hover:opacity-70 transition-opacity"
+                <button
+                  key={item.label}
+                  onClick={() => goTo(item.path)}
+                  className="text-3xl font-semibold tracking-widest uppercase cursor-pointer hover:opacity-70 transition-opacity text-left"
                   style={{ color: "var(--color-fg-default)" }}
                 >
-                  {item}
-                </span>
+                  {item.label}
+                </button>
               ))}
             </div>
 
             {/* Bottom CTA */}
             <div className="mt-auto">
-              <button
-                onClick={() => { setMenuOpen(false); navigate("/setup"); }}
-                className="inline-flex items-center gap-2 text-xl font-semibold cursor-pointer hover:opacity-80 transition-opacity"
-                style={{ color: accentColor }}
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => goTo("/setup")}
               >
-                Work With Us
-                <ArrowUpRight size={22} />
-              </button>
+                <Play size={20} />
+                Start Game
+                <ArrowUpRight size={20} />
+              </Button>
             </div>
           </motion.div>
         )}

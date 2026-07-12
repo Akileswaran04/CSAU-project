@@ -10,6 +10,7 @@ import { useGameStore } from "../../store/useGameStore";
 import { TeamIconDisplay } from "../shared/TeamIconDisplay";
 import { useLogStore } from "../../store/useLogStore";
 import { useRiddleStore } from "../../store/useRiddleStore";
+import { Button } from "../ui/button";
 import { ConfirmDialog } from "../shared/ConfirmDialog";
 import { toast } from "sonner";
 import { sounds } from "../../lib/sound";
@@ -170,74 +171,54 @@ export function GameControlBar() {
         {/* Action buttons */}
         <div className="flex items-center gap-2">
           {gamePhase === "idle" && (
-            <button
+            <Button
               onClick={handleStart}
               disabled={teams.length < 2}
+              variant="primary"
               aria-label="Start game"
-              className="glass-button flex items-center gap-2 px-5 py-2.5 font-display font-semibold text-white disabled:text-white/20 disabled:cursor-not-allowed"
-              style={
-                teams.length >= 2
-                  ? {
-                      background: "var(--color-accent-success-muted)",
-                      borderColor: "rgba(198, 241, 53, 0.25)",
-                    }
-                  : undefined
-              }
             >
               <Play size={18} aria-hidden="true" />
               Start
-            </button>
+            </Button>
           )}
 
           {(isActive || isPaused) && (
             <>
-              <button
+              <Button
                 onClick={handlePause}
-                className="glass-button flex items-center gap-2 px-4 py-2.5 font-display font-medium text-white"
-                style={{
-                  background: isActive
-                    ? "rgba(255, 184, 48, 0.12)"
-                    : "rgba(198, 241, 53, 0.12)",
-                  borderColor: isActive
-                    ? "rgba(255, 184, 48, 0.2)"
-                    : "rgba(198, 241, 53, 0.2)",
-                }}
+                variant={isActive ? "secondary" : "primary"}
               >
                 {isActive ? <Pause size={18} /> : <Play size={18} />}
                 {isActive ? "Pause" : "Resume"}
-              </button>
+              </Button>
 
               {isActive && (
-                <button
+                <Button
                   onClick={handleAdvanceTurn}
-                  className="glass-button flex items-center gap-2 px-4 py-2.5 font-display font-medium text-white/60 hover:text-white"
+                  variant="secondary"
                 >
                   <SkipForward size={18} />
-                  Skip Turn
-                </button>
+                  Skip
+                </Button>
               )}
 
-              <button
+              <Button
                 onClick={() => setConfirmAction("end")}
-                className="glass-button flex items-center gap-2 px-4 py-2.5 font-display font-medium text-danger/70 hover:text-danger"
-                style={{
-                  background: "rgba(225, 29, 60, 0.08)",
-                  borderColor: "var(--color-accent-danger-muted)",
-                }}
+                variant="danger"
               >
                 <StopCircle size={18} />
                 End
-              </button>
+              </Button>
             </>
           )}
 
-          <button
+          <Button
             onClick={() => setConfirmAction("reset")}
-            className="glass-button flex items-center gap-2 px-4 py-2.5 font-display font-medium text-white/40 hover:text-white/70"
+            variant="ghost"
           >
             <RotateCcw size={18} />
             Reset
-          </button>
+          </Button>
         </div>
       </div>
 

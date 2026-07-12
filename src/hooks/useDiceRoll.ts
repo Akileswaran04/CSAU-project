@@ -18,7 +18,7 @@ export function useDiceRoll() {
 
     sounds.diceRoll.play();
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1200));
 
     const result = Math.floor(Math.random() * 6) + 1;
     setDiceResult(result);
@@ -32,6 +32,7 @@ export function useDiceRoll() {
 
     const newPosition = team.position + result;
 
+    // Position updates NOW — triggers step-by-step token animation
     moveTeam(team.id, newPosition);
 
     incrementNonRiddleTurns(team.id);
@@ -42,6 +43,9 @@ export function useDiceRoll() {
       message: `moved from cell ${team.position} to cell ${Math.min(newPosition, 31)}`,
       type: "movement",
     });
+
+    // Small gap for the overshoot to commit, then settle fires
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     setIsRolling(false);
     setIsAnimating(false);
