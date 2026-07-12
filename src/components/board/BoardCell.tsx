@@ -13,6 +13,8 @@ export interface CellProps {
   difficulty?: "easy" | "medium" | "hard";
   index: number;
   isStart: boolean;
+  /** Shared ref: when non-null, this cell index pulses brighter as a hop destination */
+  destinationCellRef?: React.MutableRefObject<number | null>;
 }
 
 /* ─── Difficulty Helpers ─── */
@@ -93,8 +95,65 @@ function CellAnimator({ meshRef, glowRef, index }: {
   return null;
 }
 
+/* ─── Highlight Animator: pulses the cell brighter when it's the hop destination ─── */
+function HighlightAnimator({
+  meshRef,
+  glowRef,
+  groupRef,
+  index,
+  destinationCellRef,
+  baseEmissiveIntensity,
+}: {
+  meshRef: React.RefObject<THREE.Mesh | null>;
+  glowRef: React.RefObject<THREE.Mesh | null>;
+  groupRef: React.RefObject<THREE.Group | null>;
+  index: number;
+  destinationCellRef: React.MutableRefObject<number | null>;
+  baseEmissiveIntensity: number;
+}) {
+  useFrame((state) => {
+    const isHighlighted = destinationCellRef.current === index;
+    if (!meshRef.current) return;
+
+    const mat = meshRef.current.material as THREE.MeshStandardMaterial;
+    const time = state.clock.elapsedTime;
+
+    if (isHighlighted) {
+      // Quick bright pulse: emissive bounces between 0.8 and 1.4
+      const pulse = 0.8 + Math.sin(time * 5 + index * 2) * 0.3;
+      mat.emissiveIntensity = pulse;
+
+      // Gentle scale bounce
+      if (groupRef.current) {
+        const scalePulse = 1 + Math.sin(time * 5 + index * 2) * 0.03;
+        groupRef.current.scale.setScalar(scalePulse);
+      }
+
+      // Brighten the glow ring
+      if (glowRef.current) {
+        const glowMat = glowRef.current.material as THREE.MeshBasicMaterial;
+        glowMat.opacity = 0.25 + Math.sin(time * 4 + index * 2) * 0.15;
+        const ringScale = 1 + Math.sin(time * 4 + index * 2) * 0.08;
+        glowRef.current.scale.setScalar(ringScale);
+      }
+    } else {
+      // Reset emissive to base value (critical: prevents permanently bright cells)
+      mat.emissiveIntensity = baseEmissiveIntensity;
+
+      // Reset glow ring
+      if (glowRef.current) {
+        const glowMat = glowRef.current.material as THREE.MeshBasicMaterial;
+        glowMat.opacity = 0.15;
+        glowRef.current.scale.setScalar(1);
+      }
+    }
+  });
+
+  return null;
+}
+
 /* ─── Cell ─── */
-export const Cell = memo(function Cell({ position, isRiddle, isEnd, difficulty, index, isStart }: CellProps) {
+export const Cell = memo(function Cell({ position, isRiddle, isEnd, difficulty, index, isStart, destinationCellRef }: CellProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
   const groupRef = useRef<THREE.Group>(null);
@@ -112,6 +171,9 @@ export const Cell = memo(function Cell({ position, isRiddle, isEnd, difficulty, 
 
   const cellHeight = isStart || isEnd ? 0.45 : isRiddle ? 0.35 : 0.3;
 
+  // Store the base emissive intensity so HighlightAnimator can reset properly
+  const baseEmissiveIntensity = isRiddle || isEnd ? 0.4 : isStart ? 0.15 : isDark ? 0.04 : 0;
+
   // Hover: directly set material/scale via pointer events — no per-frame useFrame
   const handlePointerEnter = () => {
     if (groupRef.current) groupRef.current.scale.setScalar(1.12);
@@ -124,7 +186,7 @@ export const Cell = memo(function Cell({ position, isRiddle, isEnd, difficulty, 
     if (groupRef.current) groupRef.current.scale.setScalar(1);
     if (meshRef.current) {
       const mat = meshRef.current.material as THREE.MeshStandardMaterial;
-      if (mat) mat.emissiveIntensity = isRiddle || isEnd ? 0.4 : isDark ? 0.04 : 0;
+      if (mat) mat.emissiveIntensity = baseEmissiveIntensity;
     }
   };
 
@@ -148,7 +210,7 @@ export const Cell = memo(function Cell({ position, isRiddle, isEnd, difficulty, 
           metalness={isRiddle || isEnd ? 0.6 : isStart ? 0.4 : 0.2}
           roughness={isRiddle || isEnd ? 0.3 : isStart ? 0.4 : 0.7}
           emissive={isRiddle || isEnd ? baseColor : isStart ? "#4C8DFF" : isDark ? "#4C8DFF" : "#000000"}
-          emissiveIntensity={isRiddle || isEnd ? 0.4 : isStart ? 0.15 : isDark ? 0.04 : 0}
+          emissiveIntensity={baseEmissiveIntensity}
         />
       </RoundedBox>
 
@@ -220,9 +282,21 @@ export const Cell = memo(function Cell({ position, isRiddle, isEnd, difficulty, 
         </Html>
       )}
 
-      {/* Only register useFrame for cells that need animation */}
+      {/* Cell animator for riddle/end cells */}
       {(isRiddle || isEnd) && (
         <CellAnimator meshRef={meshRef} glowRef={glowRef} index={index} />
+      )}
+
+      {/* Highlight animator: pulses when this cell is the hop destination */}
+      {destinationCellRef && (
+        <HighlightAnimator
+          meshRef={meshRef}
+          glowRef={glowRef}
+          groupRef={groupRef}
+          index={index}
+          destinationCellRef={destinationCellRef}
+          baseEmissiveIntensity={baseEmissiveIntensity}
+        />
       )}
     </group>
   );

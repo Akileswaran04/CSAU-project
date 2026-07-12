@@ -1,299 +1,262 @@
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, X, Play } from "lucide-react";
-import { BrandLogo } from "../components/shared/BrandLogo";
-import { Button } from "../components/ui/button";
+import { Menu, X } from "lucide-react";
 
-/* ─── Framer Motion Variants ─── */
-const fadeDown = {
-  hidden: { opacity: 0, y: -20 },
-  visible: (custom = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, delay: custom * 0.1, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  }),
-};
+/* ─── Asset URLs ─── */
+const BG_IMAGE_1 =
+  "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260609_195923_b0ba8ace-1d1d-4f2c-9a28-1ab84b330680.png&w=1280&q=85";
+const BG_IMAGE_2 =
+  "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260609_201152_bba90a12-bf12-459f-91f0-51f237dbaf3b.png&w=1280&q=85";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 32 },
-  visible: (custom = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, delay: custom * 0.12, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  }),
-};
+/* ─── Constants ─── */
+const SPOTLIGHT_R = 260;
 
-const wordReveal = {
-  hidden: { y: "110%" },
-  visible: (custom = 0) => ({
-    y: 0,
-    transition: { duration: 0.7, delay: 0.4 + custom * 0.14, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  }),
-};
+/* ─── Cursor-following spotlight reveal layer ─── */
+function RevealLayer({
+  image,
+  cursorX,
+  cursorY,
+}: {
+  image: string;
+  cursorX: number;
+  cursorY: number;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const divRef = useRef<HTMLDivElement>(null);
+  const sizeRef = useRef({ w: window.innerWidth, h: window.innerHeight });
 
-const navItems = [
-  { label: "Setup", path: "/setup" },
-  { label: "Board", path: "/board" },
-  { label: "Spectate", path: "/spectate" },
-  { label: "Leaderboard", path: "/leaderboard" },
-];
+  // Update canvas + mask on every render
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const div = divRef.current;
+    if (!canvas || !div) return;
 
-const statItems = [
-  { number: "32", label: "BOARD\nCELLS" },
-  { number: "10", label: "RIDDLE\nSQUARES" },
-  { number: "24", label: "BRAIN\nTEASERS" },
-];
+    const { w, h } = sizeRef.current;
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-export function HeroPage() {
-  const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
+    ctx.clearRect(0, 0, w, h);
 
-  const accentColor = "var(--color-accent-primary)";
+    const gradient = ctx.createRadialGradient(
+      cursorX,
+      cursorY,
+      0,
+      cursorX,
+      cursorY,
+      SPOTLIGHT_R
+    );
+    gradient.addColorStop(0, "rgba(255,255,255,1)");
+    gradient.addColorStop(0.4, "rgba(255,255,255,1)");
+    gradient.addColorStop(0.6, "rgba(255,255,255,0.75)");
+    gradient.addColorStop(0.75, "rgba(255,255,255,0.4)");
+    gradient.addColorStop(0.88, "rgba(255,255,255,0.12)");
+    gradient.addColorStop(1, "rgba(255,255,255,0)");
 
-  const goTo = (path: string) => {
-    setMenuOpen(false);
-    navigate(path);
-  };
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(cursorX, cursorY, SPOTLIGHT_R, 0, Math.PI * 2);
+    ctx.fill();
+
+    const dataUrl = canvas.toDataURL();
+    div.style.maskImage = `url(${dataUrl})`;
+    div.style.webkitMaskImage = `url(${dataUrl})`;
+    div.style.maskSize = "100% 100%";
+    div.style.webkitMaskSize = "100% 100%";
+  }, [cursorX, cursorY]);
+
+  // Resize handler
+  useEffect(() => {
+    const onResize = () => {
+      sizeRef.current = { w: window.innerWidth, h: window.innerHeight };
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden font-['Inter',sans-serif]">
-      {/* ─── Background Video ─── */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'%3E%3Crect fill='%230B0E13' width='1920' height='1080'/%3E%3C/svg%3E"
+    <>
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 pointer-events-none"
+        style={{ display: "none" }}
+      />
+      <div
+        ref={divRef}
+        className="absolute inset-0 bg-center bg-cover bg-no-repeat z-30 pointer-events-none"
+        style={{ backgroundImage: `url(${image})` }}
+      />
+    </>
+  );
+}
+
+/* ─── Hero Page ─── */
+export function HeroPage() {
+  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // ─── Spotlight cursor tracking with smooth lerp ───
+  const mouseRef = useRef({ x: -999, y: -999 });
+  const smoothRef = useRef({ x: -999, y: -999 });
+  const rafRef = useRef<number>(0);
+  const [cursorPos, setCursorPos] = useState({ x: -999, y: -999 });
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    mouseRef.current = { x: e.clientX, y: e.clientY };
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+
+    const animate = () => {
+      smoothRef.current.x += (mouseRef.current.x - smoothRef.current.x) * 0.1;
+      smoothRef.current.y += (mouseRef.current.y - smoothRef.current.y) * 0.1;
+      setCursorPos({ x: smoothRef.current.x, y: smoothRef.current.y });
+      rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [handleMouseMove]);
+
+  return (
+    <div
+      className="min-h-screen bg-white tracking-[-0.02em]"
+      style={{ fontFamily: "'Inter', sans-serif" }}
+    >
+      {/* ─── Fixed Navigation ─── */}
+      <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between p-4 sm:p-5">
+        {/* Left: Logo */}
+        <div className="flex items-center gap-2">
+          <svg width="26" height="26" viewBox="0 0 256 256" fill="#ffffff">
+            <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z" />
+          </svg>
+          <span className="text-white text-2xl font-playfair italic">Lithos</span>
+        </div>
+
+        {/* Center: Nav Pill (desktop) */}
+        <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-2 py-2 items-center gap-1">
+          <button className="text-white px-4 py-1.5 rounded-full text-sm font-medium bg-white/20">
+            Course
+          </button>
+          <button className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium">
+            Field Guides
+          </button>
+          <button className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium">
+            Geology
+          </button>
+          <button className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium">
+            Plans
+          </button>
+          <button className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium">
+            Live Tour
+          </button>
+        </div>
+
+        {/* Right: Sign Up (desktop) */}
+        <button className="hidden md:block bg-white text-gray-900 text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-gray-100 transition-colors"
+          onClick={() => navigate("/setup")}>
+          Sign Up
+        </button>
+
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden text-white p-2"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </nav>
+
+      {/* ─── Hero Section ─── */}
+      <section
+        className="relative w-full overflow-hidden h-screen bg-black"
+        style={{ height: "100dvh" }}
       >
-        <source
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260517_222138_3e3205be-3364-417b-a64a-bfe087acbec4.mp4"
-          type="video/mp4"
+        {/* Layer 1: Base image (z-10) */}
+        <div
+          className="absolute inset-0 bg-center bg-cover bg-no-repeat hero-zoom z-10"
+          style={{ backgroundImage: `url(${BG_IMAGE_1})` }}
         />
-      </video>
 
-      {/* ─── Scrim Overlay ─── */}
-      <div className="absolute inset-0 pointer-events-none bg-black/30" />
+        {/* Layer 2: Spotlight reveal (z-30) */}
+        <RevealLayer image={BG_IMAGE_2} cursorX={cursorPos.x} cursorY={cursorPos.y} />
 
-      {/* ─── Content Container ─── */}
-      <div className="relative z-10 flex flex-col min-h-screen" style={{ color: "var(--color-fg-default)" }}>
-        {/* ══════ NAV ══════ */}
-        <nav className="flex items-center justify-between px-5 sm:px-8 md:px-12 pt-5 md:pt-6">
-          {/* Left: Logo */}
-          <motion.button
-            variants={fadeDown}
-            initial="hidden"
-            animate="visible"
-            custom={0}
-            onClick={() => navigate("/")}
-            className="shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-            aria-label="Riddle Rush home"
-          >
-            <BrandLogo size={32} />
-          </motion.button>
-
-          {/* Center: Nav Links (hidden mobile) */}
-          <div className="hidden md:flex items-center gap-10">
-            {navItems.map((item, i) => (
-              <motion.button
-                key={item.label}
-                variants={fadeDown}
-                initial="hidden"
-                animate="visible"
-                custom={i + 1}
-                onClick={() => goTo(item.path)}
-                className="text-sm font-semibold tracking-widest uppercase cursor-pointer hover:opacity-70 transition-opacity"
-              >
-                {item.label}
-              </motion.button>
-            ))}
-          </div>
-
-          {/* Right: Hamburger */}
-          <motion.button
-            variants={fadeDown}
-            initial="hidden"
-            animate="visible"
-            custom={5}
-            onClick={() => setMenuOpen(true)}
-            className="w-9 h-9 rounded-full bg-white flex items-center justify-center gap-[3px] flex-col cursor-pointer hover:opacity-80 transition-opacity"
-            style={{ backgroundColor: "var(--color-fg-default)" }}
-            aria-label="Open menu"
-          >
-            <span className="w-4 h-[2px] rounded-full" style={{ backgroundColor: "var(--color-bg-base)" }} />
-            <span className="w-4 h-[2px] rounded-full" style={{ backgroundColor: "var(--color-bg-base)" }} />
-            <span className="w-4 h-[2px] rounded-full" style={{ backgroundColor: "var(--color-bg-base)" }} />
-          </motion.button>
-        </nav>
-
-        {/* ══════ STATS ROW (flex-1, centered) ══════ */}
-        <div className="flex-1 flex items-center justify-end px-5 sm:px-8 md:px-12 py-8 md:py-0">
-          <div className="flex items-center gap-5 sm:gap-8 md:gap-10">
-            {statItems.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                custom={i + 2}
-                className="text-right"
-              >
-                <div className="flex items-start justify-end">
-                  <span
-                    className="text-[0.5em] leading-none font-semibold mr-0.5 mt-1"
-                    style={{ color: accentColor }}
-                  >
-                    +
-                  </span>
-                  <span
-                    className="font-semibold leading-none"
-                    style={{
-                      fontSize: "clamp(1.5rem, 5vw, 3.5rem)",
-                      color: "var(--color-fg-default)",
-                    }}
-                  >
-                    {stat.number}
-                  </span>
-                </div>
-                <p
-                  className="text-[10px] sm:text-xs md:text-sm font-semibold tracking-widest uppercase whitespace-pre-line leading-tight"
-                  style={{ color: "var(--color-fg-muted)" }}
-                >
-                  {stat.label}
-                </p>
-              </motion.div>
-            ))}
-          </div>
+        {/* Layer 3: Heading (z-50) */}
+        <div className="absolute top-[14%] left-0 right-0 flex flex-col items-center text-center px-5 pointer-events-none z-50">
+          <h1 className="text-white leading-[0.95]">
+            <span
+              className="block font-playfair italic font-normal text-5xl sm:text-7xl md:text-8xl hero-anim hero-reveal"
+              style={{ letterSpacing: "-0.05em", animationDelay: "0.25s" }}
+            >
+              Layers hold
+            </span>
+            <span
+              className="block font-normal text-5xl sm:text-7xl md:text-8xl -mt-1 hero-anim hero-reveal"
+              style={{ letterSpacing: "-0.08em", animationDelay: "0.42s" }}
+            >
+              tales of time
+            </span>
+          </h1>
         </div>
 
-        {/* ══════ BOTTOM CONTENT ══════ */}
-        <div className="px-5 sm:px-8 md:px-12 pb-8 md:pb-12 flex flex-col gap-6 md:gap-12">
-          {/* Row A: Tagline + CTA */}
-          <div className="flex items-center justify-between gap-4">
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={5}
-              className="text-[10px] sm:text-xs md:text-sm font-semibold tracking-widest uppercase max-w-[130px] sm:max-w-[160px] md:max-w-xs"
-              style={{ color: "var(--color-fg-muted)" }}
-            >
-              Outwit<br />The Board<br />Win The Race
-            </motion.p>
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={6}
-            >
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => goTo("/setup")}
-                className="text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4"
-              >
-                <Play size={22} />
-                Start Game
-                <ArrowUpRight size={20} />
-              </Button>
-            </motion.div>
-          </div>
-
-          {/* Row B: Description + Main Heading */}
-          <div className="flex items-end justify-between gap-3 sm:gap-4">
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={7}
-              className="w-[120px] sm:w-[180px] md:w-[280px] shrink-0"
-            >
-              <p
-                className="text-[9px] sm:text-xs md:text-sm font-semibold tracking-widest uppercase text-left md:text-right"
-                style={{ color: "var(--color-fg-muted)" }}
-              >
-                Roll the dice, solve riddles, and race your team to the finish line
-              </p>
-            </motion.div>
-
-            {/* Main Heading — 3 words stacked */}
-            <div className="text-right">
-              {["Riddle", "Rush", "Play"].map((word, i) => (
-                <div key={word} className="overflow-hidden">
-                  <motion.span
-                    variants={wordReveal}
-                    initial="hidden"
-                    animate="visible"
-                    custom={i}
-                    className="block font-display font-semibold uppercase leading-[0.88]"
-                    style={{
-                      fontSize: "clamp(2rem, 9vw, 9rem)",
-                      color: "var(--color-fg-default)",
-                    }}
-                  >
-                    {word}
-                  </motion.span>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* Layer 4: Bottom-left paragraph (z-50) */}
+        <div className="hidden sm:block absolute bottom-14 left-10 md:left-14 max-w-[260px] z-50 hero-anim hero-fade"
+          style={{ animationDelay: "0.7s" }}>
+          <p className="text-sm text-white/80 leading-relaxed">
+            Every layer of sediment records a chapter of our planet, from ancient
+            seabeds to drifting ash, layered across millions of years beneath us.
+          </p>
         </div>
-      </div>
 
-      {/* ══════ MOBILE MENU OVERLAY ══════ */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 flex flex-col p-5 sm:p-8 md:p-12"
-            style={{ backgroundColor: "var(--color-bg-base)" }}
+        {/* Layer 5: Bottom-right block (z-50) */}
+        <div
+          className="absolute bottom-10 sm:bottom-24 left-5 right-5 sm:left-auto sm:right-10 md:right-14 max-w-full sm:max-w-[260px] flex flex-col items-start gap-4 sm:gap-5 z-50 hero-anim hero-fade"
+          style={{ animationDelay: "0.85s" }}
+        >
+          <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+            Our interactive maps let you peel back the crust to trace how stones,
+            fossils, and deep time combine to shape the ground beneath your feet.
+          </p>
+          <button
+            onClick={() => navigate("/setup")}
+            className="bg-[#e8702a] hover:bg-[#d2611f] text-white text-sm font-medium px-7 py-3 rounded-full transition-all hover:scale-[1.03] active:scale-95 hover:shadow-lg hover:shadow-[#e8702a]/30"
           >
-            {/* Top row: logo + close */}
-            <div className="flex items-center justify-between">
-              <BrandLogo size={32} />
+            Start Digging
+          </button>
+        </div>
+      </section>
+
+      {/* ─── Mobile menu overlay ─── */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-lg flex flex-col items-center justify-center gap-6 md:hidden">
+          {["Course", "Field Guides", "Geology", "Plans", "Live Tour"].map(
+            (item) => (
               <button
-                onClick={() => setMenuOpen(false)}
-                className="w-9 h-9 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                style={{ backgroundColor: "var(--color-fg-default)" }}
-                aria-label="Close menu"
+                key={item}
+                className="text-white text-2xl font-medium hover:text-white/70 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
               >
-                <X size={18} style={{ color: "var(--color-bg-base)" }} />
+                {item}
               </button>
-            </div>
-
-            {/* Nav links */}
-            <div className="flex flex-col gap-8 mt-16">
-              {navItems.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => goTo(item.path)}
-                  className="text-3xl font-semibold tracking-widest uppercase cursor-pointer hover:opacity-70 transition-opacity text-left"
-                  style={{ color: "var(--color-fg-default)" }}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Bottom CTA */}
-            <div className="mt-auto">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => goTo("/setup")}
-              >
-                <Play size={20} />
-                Start Game
-                <ArrowUpRight size={20} />
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            )
+          )}
+          <button
+            className="mt-4 bg-white text-gray-900 text-sm font-semibold px-8 py-3 rounded-full hover:bg-gray-100 transition-colors"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              navigate("/setup");
+            }}
+          >
+            Sign Up
+          </button>
+        </div>
+      )}
     </div>
   );
 }

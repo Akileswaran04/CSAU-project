@@ -120,6 +120,21 @@ export const sounds = {
     },
   },
   /**
+   * Hop — subtle wooden tick for each cell the token lands on during
+   * step-by-step movement. A short high-frequency click with slight
+   * volume and pitch variation for organic feel.
+   */
+  hop: {
+    play: (pitchOffset = 0) => {
+      const freq = 1200 + pitchOffset * 200 + Math.random() * 150;
+      createTone(freq, 0.06, "sine").play();
+      // Second harmonic for a slightly richer tap
+      setTimeout(() => {
+        createTone(freq * 1.5, 0.04, "sine").play();
+      }, 10);
+    },
+  },
+  /**
    * Chime — a warm, resonant tone for splash screen entrance.
    * Two rich sine harmonics with a slow decay for a bell-like shimmer.
    */

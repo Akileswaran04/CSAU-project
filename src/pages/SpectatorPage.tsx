@@ -1,4 +1,3 @@
-// No dynamic refresh needed — Zustand store is reactive
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameBoard3D } from "../components/board/GameBoard3D";
@@ -6,63 +5,70 @@ import { LeaderboardTable } from "../components/leaderboard/LeaderboardTable";
 import { ActionLog } from "../components/controls/ActionLog";
 import { useGameStore } from "../store/useGameStore";
 import { Button } from "../components/ui/button";
-import { Trophy, Eye, Play, Pause, RefreshCw, Minimize2, Maximize2 } from "lucide-react";
+import {
+  Trophy,
+  Eye,
+  Play,
+  Pause,
+  RefreshCw,
+  PanelRightClose,
+  PanelRightOpen,
+  LayoutDashboard,
+  Users,
+  ScrollText,
+} from "lucide-react";
+
+type PanelMode = "leaderboard" | "log" | "closed";
 
 /**
- * Spectator Page — read-only live view of the game.
- * Shows the board, leaderboard, and action log for audiences.
+ * Spectator Page — always fullscreen live view with toggleable overlay panels.
+ * Shows the board full-viewport with a floating HUD and side panel.
  */
 export function SpectatorPage() {
   const { teams, gamePhase, currentTeamIndex } = useGameStore();
   const currentTeam = teams[currentTeamIndex];
+  const [panelMode, setPanelMode] = useState<PanelMode>("leaderboard");
+  const [showPanel, setShowPanel] = useState(true);
 
-  // ─── Fullscreen state (no persistence) ───
-  const [spectatorFullscreen, setSpectatorFullscreen] = useState(false);
-
-  const toggleFullscreen = useCallback(() => {
-    setSpectatorFullscreen((prev) => !prev);
+  const togglePanel = useCallback(() => {
+    setShowPanel((prev) => !prev);
   }, []);
 
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === "f" || e.key === "F") {
-        setSpectatorFullscreen((prev) => !prev);
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+  const cyclePanel = useCallback(() => {
+    setPanelMode((prev) => {
+      if (prev === "leaderboard") return "log";
+      if (prev === "log") return "leaderboard";
+      return "leaderboard";
+    });
   }, []);
 
-  // ─── Fullscreen Mode ───
-  if (spectatorFullscreen) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 1.02 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className="fixed inset-0 z-50 bg-ink-900"
-      >
-        {/* Fullscreen board — fills entire viewport */}
-        <div className="absolute inset-0">
-          <GameBoard3D onToggleFullscreen={toggleFullscreen} isFullscreen={true} />
-        </div>
+  return (
+    <div className="fixed inset-0 z-40 bg-ink-900">
+      {/* ─── Fullscreen Board ─── */}
+      <div className="absolute inset-0">
+        <GameBoard3D onToggleFullscreen={() => {}} isFullscreen={true} />
+      </div>
 
-        {/* Floating spectator HUD — bottom-center */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.3, ease: "easeOut" }}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30"
-        >
+      {/* ─── Top HUD Bar ─── */}
+      <div className="absolute top-0 left-0 right-0 z-30 p-4 flex items-center justify-between pointer-events-none">
+        {/* Left: Brand + status */}
+        <div className="flex items-center gap-3 pointer-events-auto">
           <div
-            className="glass-panel-tinted rounded-2xl px-5 py-3 flex items-center gap-5"
-            style={{ backdropFilter: "blur(20px)" }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{
+              background: "var(--color-accent-primary-muted)",
+              border: "1px solid var(--color-accent-primary-muted)",
+            }}
           >
-            {/* Status indicator */}
-            <div className="flex items-center gap-2">
+            <Eye size={18} className="text-accent-primary" />
+          </div>
+          <div>
+            <h1 className="text-white text-sm font-display font-bold leading-tight">
+              Spectator
+            </h1>
+            <div className="flex items-center gap-1.5">
               <div
-                className={`w-2.5 h-2.5 rounded-full ${
+                className={`w-1.5 h-1.5 rounded-full ${
                   gamePhase === "active"
                     ? "bg-accent-success animate-pulse"
                     : gamePhase === "paused"
@@ -72,7 +78,7 @@ export function SpectatorPage() {
                         : "bg-white/15"
                 }`}
               />
-              <span className="text-white/70 text-sm font-display font-medium capitalize">
+              <span className="text-white/50 text-[10px] font-display font-medium uppercase tracking-wider">
                 {gamePhase === "idle"
                   ? "Waiting"
                   : gamePhase === "active"
@@ -82,192 +88,148 @@ export function SpectatorPage() {
                       : "Game Over"}
               </span>
             </div>
-
-            {/* Current team */}
-            {currentTeam && gamePhase === "active" && (
-              <div
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full"
-                style={{
-                  background: currentTeam.color + "15",
-                  border: `1px solid ${currentTeam.color}30`,
-                }}
-              >
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: currentTeam.color }} />
-                <span className="text-sm font-display font-medium" style={{ color: currentTeam.color }}>
-                  {currentTeam.name}
-                </span>
-              </div>
-            )}
-
-            {/* Team count */}
-            <div className="flex items-center gap-1.5 text-white/40 text-sm font-mono">
-              <Trophy size={14} />
-              <span>{teams.length} team{teams.length !== 1 ? "s" : ""}</span>
-            </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Exit fullscreen — top-left */}
-        <motion.button
-          initial={{ x: -10, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.15, duration: 0.25 }}
-          onClick={toggleFullscreen}
-          className="absolute top-4 left-4 z-30 glass-button p-2.5 text-white/50 hover:text-white flex items-center gap-2"
-          aria-label="Exit fullscreen view"
-        >
-          <Minimize2 size={18} aria-hidden="true" />
-          <span className="text-sm font-display font-medium hidden sm:inline">Exit</span>
-        </motion.button>
-      </motion.div>
-    );
-  }
-
-  // ─── Normal Mode ───
-  return (
-    <div className="min-h-screen">
-      {/* Spectator header bar */}
-      <div className="sticky top-0 z-40 backdrop-blur-lg border-b border-white/[0.04]"
-        style={{ background: "var(--color-bg-header)" }}>
-        <div className="p-4 px-6">
-          <div className="glass-panel-tinted p-4 px-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{
-                    background: "var(--color-accent-primary-muted)",
-                    border: "1px solid var(--color-accent-primary-muted)",
-                  }}
-                >
-                  <Eye size={18} className="text-jade" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-display font-bold text-white">
-                    Spectator View
-                  </h1>
-                  <p className="text-white/40 text-xs font-display">
-                    Live game feed — read-only
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-5">
-                {/* Game status */}
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-2.5 h-2.5 rounded-full ${
-                      gamePhase === "active"
-                        ? "bg-accent-success animate-pulse"
-                        : gamePhase === "paused"
-                          ? "bg-accent-gold"
-                          : gamePhase === "ended"
-                            ? "bg-danger"
-                            : "bg-white/15"
-                    }`}
-                  />
-                  <span className="text-white/60 text-sm font-display font-medium capitalize">
-                    {gamePhase === "idle"
-                      ? "Waiting for players..."
-                      : gamePhase === "active"
-                        ? "Live"
-                        : gamePhase === "paused"
-                          ? "Paused"
-                          : "Game Over"}
-                  </span>
-                </div>
-
-                {/* Current team indicator */}
-                {currentTeam && gamePhase === "active" && (
-                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full"
-                    style={{
-                      background: currentTeam.color + "15",
-                      border: `1px solid ${currentTeam.color}30`,
-                    }}>
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: currentTeam.color }}
-                    />
-                    <span
-                      className="text-sm font-display font-medium"
-                      style={{ color: currentTeam.color }}
-                    >
-                      {currentTeam.name}'s Turn
-                    </span>
-                  </div>
-                )}
-
-                {/* Team count */}
-                <div className="hidden md:flex items-center gap-1.5 text-white/40 text-sm font-mono">
-                  <Trophy size={14} />
-                  <span>{teams.length} team{teams.length !== 1 ? "s" : ""}</span>
-                </div>
-
-                {/* Fullscreen toggle */}
-                <button
-                  onClick={toggleFullscreen}
-                  className="glass-button p-2 text-white/40 hover:text-white"
-                  aria-label="Enter fullscreen view"
-                  title="Fullscreen (F)"
-                >
-                  <Maximize2 size={16} aria-hidden="true" />
-                </button>
-              </div>
-            </div>
+        {/* Center: Current team indicator */}
+        {currentTeam && gamePhase === "active" && (
+          <div
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full pointer-events-auto"
+            style={{
+              background: currentTeam.color + "15",
+              border: `1px solid ${currentTeam.color}30`,
+            }}
+          >
+            <div
+              className="w-2 h-2 rounded-full"
+              style={{ backgroundColor: currentTeam.color }}
+            />
+            <span
+              className="text-sm font-display font-medium"
+              style={{ color: currentTeam.color }}
+            >
+              {currentTeam.name}&apos;s Turn
+            </span>
           </div>
+        )}
+
+        {/* Right: Panel controls */}
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <div className="hidden sm:flex items-center gap-1.5 text-white/40 text-xs font-mono bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+            <Trophy size={12} />
+            <span>
+              {teams.length} team{teams.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+
+          {showPanel && (
+            <Button
+              onClick={cyclePanel}
+              variant="ghost"
+              size="sm"
+              className="!text-white/40 hover:!text-white bg-black/30 backdrop-blur-sm"
+              aria-label={
+                panelMode === "leaderboard" ? "Switch to action log" : "Switch to leaderboard"
+              }
+            >
+              {panelMode === "leaderboard" ? (
+                <ScrollText size={16} />
+              ) : (
+                <Trophy size={16} />
+              )}
+            </Button>
+          )}
+
+          <Button
+            onClick={togglePanel}
+            variant="ghost"
+            size="sm"
+            className="!text-white/40 hover:!text-white bg-black/30 backdrop-blur-sm"
+            aria-label={showPanel ? "Close panel" : "Open panel"}
+          >
+            {showPanel ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
+          </Button>
         </div>
       </div>
 
-      {/* Main content — increased spacing */}
-      <div className="flex flex-col lg:flex-row gap-6 p-6">
-        {/* Board */}
-        <div className="flex-1 min-h-[500px] lg:min-h-[calc(100vh-100px)]">
-          <div className="relative h-full rounded-2xl overflow-hidden glass-panel p-1">
-            <div className="w-full h-full min-h-[480px] lg:min-h-[calc(100vh-120px)] rounded-xl overflow-hidden">
-              <GameBoard3D onToggleFullscreen={toggleFullscreen} />
-            </div>
+      {/* ─── Bottom HUD: Game status ─── */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.3, ease: "easeOut" }}
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30"
+      >
+        <div className="glass-panel-tinted rounded-2xl px-5 py-3 flex items-center gap-4 sm:gap-5">
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-2.5 h-2.5 rounded-full ${
+                gamePhase === "active"
+                  ? "bg-accent-success animate-pulse"
+                  : gamePhase === "paused"
+                    ? "bg-accent-gold"
+                    : gamePhase === "ended"
+                      ? "bg-danger"
+                      : "bg-white/15"
+              }`}
+            />
+            <span className="text-white/70 text-sm font-display font-medium capitalize">
+              {gamePhase === "idle"
+                ? "Waiting"
+                : gamePhase === "active"
+                  ? "Live"
+                  : gamePhase === "paused"
+                    ? "Paused"
+                    : "Game Over"}
+            </span>
           </div>
 
-          {/* Spectator info overlay */}
-          <motion.div
-            data-spectator-indicator
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 glass-panel p-5 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-2 text-white/40 text-sm">
-              <RefreshCw size={14} className="animate-spin-slow" />
-              <span>Live — updates in real-time</span>
+          {currentTeam && gamePhase === "active" && (
+            <div
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full"
+              style={{
+                background: currentTeam.color + "15",
+                border: `1px solid ${currentTeam.color}30`,
+              }}
+            >
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: currentTeam.color }}
+              />
+              <span
+                className="text-sm font-display font-medium"
+                style={{ color: currentTeam.color }}
+              >
+                {currentTeam.name}
+              </span>
             </div>
-            <div className="flex items-center gap-2 text-white/30 text-xs">
-              {currentTeam && gamePhase === "active" ? (
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-success animate-pulse" />
-                  Currently playing: {currentTeam.name}
-                </span>
-              ) : gamePhase === "paused" ? (
-                <span className="flex items-center gap-1.5">
-                  <Pause size={12} />
-                  Game paused
-                </span>
-              ) : (
-                <span className="flex items-center gap-1.5">
-                  <Play size={12} />
-                  Waiting for game to start
-                </span>
-              )}
+          )}
+
+          <div className="hidden sm:flex items-center gap-1.5 text-white/40 text-sm font-mono">
+            <RefreshCw size={14} className="animate-spin-slow" />
+            <span>Live</span>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ─── Side Panel (animated) ─── */}
+      <AnimatePresence>
+        {showPanel && (
+          <motion.div
+            key={panelMode}
+            initial={{ x: 400, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 400, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="absolute top-20 right-4 bottom-24 z-20 w-[360px] max-w-[calc(100vw-2rem)] overflow-y-auto"
+          >
+            <div className="pr-1">
+              {panelMode === "leaderboard" ? <LeaderboardTable /> : <ActionLog />}
             </div>
           </motion.div>
-        </div>
+        )}
+      </AnimatePresence>
 
-        {/* Sidebar: Leaderboard + Log — increased spacing */}
-        <div className="w-full lg:w-[380px] flex flex-col gap-6">
-          <LeaderboardTable />
-          <ActionLog />
-        </div>
-      </div>
-
-      {/* Full-screen overlay when no game is active */}
+      {/* ─── Empty state overlay ─── */}
       <AnimatePresence>
         {teams.length === 0 && gamePhase === "idle" && (
           <motion.div
@@ -287,12 +249,12 @@ export function SpectatorPage() {
                   border: "1px solid var(--color-accent-primary-muted)",
                 }}
               >
-                <Eye size={48} className="text-jade/60" />
+                <Eye size={48} className="text-accent-primary/60" />
               </motion.div>
               <h2 className="text-2xl font-display font-bold text-white/60 mb-2">
                 Waiting for the game to start
               </h2>
-              <p className="text-white/30 font-display">
+              <p className="text-fg-muted font-display">
                 The game board and standings will appear here live
               </p>
             </div>

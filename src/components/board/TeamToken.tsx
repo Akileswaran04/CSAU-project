@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { type Team } from "../../store/useGameStore";
 import { TeamIconDisplay } from "../shared/TeamIconDisplay";
 import { boardCells } from "../../data/boardConfig";
+import { sounds } from "../../lib/sound";
 
 /* ─── Particle burst on arrival ─── */
 const MAX_PARTICLES = 20;
@@ -41,6 +42,8 @@ export interface TeamTokenProps {
   targetCellIndex: number;
   teamCount: number;
   totalTeamsOnCell: number;
+  /** Shared ref: set to the current hop destination cell index, null when idle */
+  destinationCellRef?: React.MutableRefObject<number | null>;
 }
 
 /* ─── Helper: ease-out cubic ─── */
@@ -54,6 +57,7 @@ export const TeamToken = memo(function TeamToken({
   targetCellIndex,
   teamCount,
   totalTeamsOnCell,
+  destinationCellRef,
 }: TeamTokenProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const groupRef = useRef<THREE.Group>(null);
@@ -109,10 +113,16 @@ export const TeamToken = memo(function TeamToken({
 
     // Set toPos to the first destination cell (second cell in path)
     if (path.length > 1) {
-      const nextCell = boardCells[path[1]];
+      const nextCellIndex = path[1];
+      const nextCell = boardCells[nextCellIndex];
       toPosRef.current.set(nextCell.position.x + xOffset, 0.3, nextCell.position.z + zOffset);
+      // Immediately set the highlight so the first hop is visible from frame 1
+      if (destinationCellRef) destinationCellRef.current = nextCellIndex;
+      // Play the first hop tick
+      sounds.hop.play(0);
     } else {
       toPosRef.current.copy(fromPosRef.current);
+      if (destinationCellRef) destinationCellRef.current = null;
     }
   }
 
@@ -135,6 +145,8 @@ export const TeamToken = memo(function TeamToken({
           // Reached final cell — done moving
           legProgressRef.current = 1;
           isMovingRef.current = false;
+          // Clear the destination highlight
+          if (destinationCellRef) destinationCellRef.current = null;
           // Fire arrival particles
           particleFiredRef.current = false;
           particleBurstRef.current = 0;
@@ -142,7 +154,12 @@ export const TeamToken = memo(function TeamToken({
           // Move to next leg
           legProgressRef.current = 0;
           fromPosRef.current.copy(toPosRef.current);
-          const nextCell = boardCells[path[pathIdxRef.current + 1]];
+          const nextCellIndex = path[pathIdxRef.current + 1];
+          const nextCell = boardCells[nextCellIndex];
+          // Update the destination cell highlight
+          if (destinationCellRef) destinationCellRef.current = nextCellIndex;
+          // Play hop tick with slight pitch variation per hop
+          sounds.hop.play(pathIdxRef.current * 0.3);
           toPosRef.current.set(
             nextCell.position.x + xOffset,
             0.3,
