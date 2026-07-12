@@ -1,32 +1,89 @@
-# React + TypeScript + Vite
+# 🎲 Riddle Rush
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+**A fast-paced multiplayer trivia board game** — roll the dice, solve riddles, and race your team to the finish line.
 
-Currently, two official plugins are available:
+## 🚀 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+🔗 **[https://csau.vercel.app/](https://csau.vercel.app/)**
 
-## React Compiler
+## 📖 About
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Riddle Rush is an interactive 3D board game where teams compete to solve riddles and race across a serpentine board. Features both local hot-seat multiplayer and online multiplayer mode.
 
-## Expanding the Oxlint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- 🎲 **Dice Rolling** — Physics-based 3D dice with smooth animation
+- 🧩 **50+ Riddles** — Multiple-choice questions across tech and wordplay categories, with easy/medium/hard difficulty levels
+- 🏆 **Leaderboards** — Live standings during gameplay and all-time history (offline & online)
+- 🌐 **Online Multiplayer** — Create rooms and play with friends over WebSocket
+- 👀 **Spectator Mode** — Watch live games in real-time with full-screen 3D board view
+- 🎮 **Local Hot-Seat** — Play with 2+ teams on the same device
+- 🎨 **3D Board** — Immersive serpentine board built with Three.js and React Three Fiber
+- ⏱️ **Timed Rounds** — Each riddle has a countdown timer with visual feedback
+- 🏅 **Scoring System** — Points and movement bonuses based on difficulty and correctness
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 19, TypeScript, Vite |
+| **3D Rendering** | Three.js, React Three Fiber, Drei |
+| **Styling** | Tailwind CSS 4, Framer Motion |
+| **State** | Zustand (persisted) |
+| **Backend** | Socket.io, Express |
+| **Database** | Supabase (optional) |
+| **Deployment** | Vercel |
+
+## 🏃 Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### Environment Variables
+
+Create a `.env.local` file with Supabase credentials (optional — local storage fallback works without it):
+
+```env
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key-here
+```
+
+### Running the WebSocket Server (for online multiplayer)
+
+```bash
+# Install server dependencies
+cd server && npm install
+
+# Start server
+npm run server
+
+# The game client runs on port 5173, server on port 3001
+```
+
+## 📁 Project Structure
+
+```
+src/
+├── components/    # React components (board, dice, riddles, leaderboard, UI)
+├── data/          # Game config and riddle data
+├── hooks/         # Custom React hooks (dice, multiplayer, spectator, riddles)
+├── lib/           # Utilities (scoring, sound, animations, Supabase client)
+├── pages/         # Page components (Hero, Setup, Board, Spectator, Leaderboard)
+├── store/         # Zustand state stores (game, riddles, leaderboard, settings)
+└── main.tsx       # App entry point
+```
+
+## 📄 License
+
+MIT
