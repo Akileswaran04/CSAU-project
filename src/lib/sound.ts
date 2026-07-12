@@ -532,24 +532,46 @@ export const sounds: Record<string, LegacySound> = {
   gameEnd: createLegacySound("gameEnd"),
 };
 
-/* ─── Auto-init (eager) ─── */
+/* ─── Deferred init (safe for all browsers) ─── */
 
-// Start init immediately — OfflineAudioContext doesn't need user gesture.
-// Howler.js handles autoplay unlock internally on first interaction, so
-// by the time the user clicks the splash screen, all Howl instances are
-// ready to play (including the chime).
+// Instead of initializing at module load time, we wait for the first
+// user interaction (click / keydown / touch). This avoids autoplay
+// policy issues in Brave, Chrome, and Safari, where AudioContext
+// creation is blocked without a user gesture.
+//
+// Howler.js internally creates an AudioContext on first play(), so by
+// deferring the Howl instance creation until after a user gesture,
+// we ensure the audio subsystem works cross-browser.
 
 let initialized = false;
+let initPromise: Promise<void> | null = null;
 
-async function autoInit() {
-  if (initialized) return;
-  initialized = true;
-  try {
-    await soundManager.init();
-    console.log("[audio] Sound manager initialized");
-  } catch (err) {
-    console.warn("[audio] Failed to initialize sound manager:", err);
-  }
+function onFirstInteraction() {
+  if (initialized || initPromise) return;
+  initPromise = (async () => {
+    try {
+      await soundManager.init();
+      initialized = true;
+      console.log("[audio] Sound manager initialized");
+    } catch (err) {
+      console.warn("[audio] Failed to initialize sound manager:", err);
+    }
+  })();
+
+  // Clean up listeners after first interaction
+  document.removeEventListener("click", onFirstInteraction);
+  document.removeEventListener("keydown", onFirstInteraction);
+  document.removeEventListener("touchstart", onFirstInteraction);
 }
 
-autoInit();
+document.addEventListener("click", onFirstInteraction, { once: true });
+document.addEventListener("keydown", onFirstInteraction, { once: true });
+document.addEventListener("touchstart", onFirstInteraction, { once: true });
+
+// Also provide a manual init so callers like SplashScreen can
+// opt in eagerly after a gesture.
+export async function ensureSoundInit(): Promise<void> {
+  if (initialized) return;
+  onFirstInteraction();
+  await initPromise;
+}

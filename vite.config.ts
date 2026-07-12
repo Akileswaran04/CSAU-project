@@ -4,6 +4,11 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Allow LAN/phone access — binds to 0.0.0.0 so other devices
+  // on the same network can reach the dev server by your machine's IP.
+  server: {
+    host: true,
+  },
   plugins: [
     react(),
     VitePWA({

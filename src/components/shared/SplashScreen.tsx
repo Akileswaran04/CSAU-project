@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import { BrandLogo } from "./BrandLogo";
-import { sounds } from "../../lib/sound";
+import { sounds, ensureSoundInit } from "../../lib/sound";
 
 /* ─── Constants ─── */
 const ACCENT = "#4C8DFF";
@@ -262,9 +262,15 @@ export function SplashScreen({
   }, [phase, onFinish]);
 
   // Immediate dismiss on any interaction (also satisfies autoplay policy)
-  const handleInteract = useCallback(() => {
+  // Await sound init for cross-browser compatibility (Brave/Chrome)
+  const handleInteract = useCallback(async () => {
     if (phase !== "exit") {
-      sounds.chime.play();
+      try {
+        await ensureSoundInit();
+        sounds.chime.play();
+      } catch {
+        // Sound init failed silently — dismiss splash regardless
+      }
       setPhase("exit");
     }
   }, [phase]);
