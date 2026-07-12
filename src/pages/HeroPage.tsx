@@ -40,7 +40,7 @@ export function HeroPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleTheme = useCallback(() => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme(theme === "dark" ? "volcanic" : "dark");
   }, [theme, setTheme]);
 
   // ─── Spotlight cursor tracking with smooth lerp (writes to CSS var — no React re-renders!) ───
@@ -137,8 +137,8 @@ export function HeroPage() {
           <button
             onClick={toggleTheme}
             className="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white p-2.5 rounded-full transition-all hover:scale-105 active:scale-95"
-            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-            title={theme === "dark" ? "Light theme" : "Dark theme"}
+            aria-label={theme === "dark" ? "Switch to volcanic theme" : "Switch to dark theme"}
+            title={theme === "dark" ? "Volcanic theme" : "Dark theme"}
           >
             {theme === "dark" ? (
               <Sun size={16} aria-hidden="true" />
@@ -251,7 +251,7 @@ export function HeroPage() {
                 toggleTheme();
               }}
               className="bg-white/15 hover:bg-white/25 border border-white/30 text-white p-3 rounded-full transition-all"
-              aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              aria-label={theme === "dark" ? "Switch to volcanic theme" : "Switch to dark theme"}
             >
               {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>

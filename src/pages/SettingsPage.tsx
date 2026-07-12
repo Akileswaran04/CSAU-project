@@ -436,7 +436,7 @@ export function SettingsPage() {
               <div className="flex gap-2">
                 {([
                   { value: "dark" as const, label: "Dark", icon: Moon },
-                  { value: "light" as const, label: "Light", icon: Sun },
+                  { value: "volcanic" as const, label: "Volcanic", icon: Sun },
                 ]).map(({ value, label, icon: Icon }) => {
                   const isActive = theme === value;
                   return (
@@ -497,7 +497,7 @@ export function SettingsPage() {
               >
                 <p className="text-xs leading-relaxed" style={{ color: "var(--color-fg-muted)" }}>
                   Dark mode for immersive low-light sessions with deep charcoal and blue accents.
-                  Light mode for a warm, paper-toned daytime theme.
+                  Volcanic mode for a warm, paper-toned daytime theme inspired by volcanic rock and ember.
                 </p>
               </div>
 
@@ -505,9 +505,9 @@ export function SettingsPage() {
               <div className="pt-2 border-t border-white/[0.04]">
                 <Toggle
                   checked={theme === "dark"}
-                  onChange={(v) => setTheme(v ? "dark" : "light")}
+                  onChange={(v) => setTheme(v ? "dark" : "volcanic")}
                   label="Dark mode"
-                  description="Toggle between dark and light themes"
+                  description="Toggle between dark and volcanic themes"
                 />
               </div>
             </div>

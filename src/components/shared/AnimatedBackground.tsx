@@ -6,7 +6,7 @@ import { useSettingsStore, type ThemeMode } from "../../store/useSettingsStore";
  * with liquid ellipse shimmer for a rich refractive effect.
  * The intensity is controlled by the Settings store (0 = off, 100 = full).
  * Respects prefers-reduced-motion by pausing animation.
- * Adapts base color to the active theme (dark/light).
+ * Adapts base color to the active theme (dark/volcanic).
  */
 export function AnimatedBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -58,8 +58,8 @@ export function AnimatedBackground() {
       const w = canvas.width;
       const h = canvas.height;
 
-      // Base color adapts to theme — dark bg for dark mode, light bg for light mode
-      ctx.fillStyle = currentTheme === "light" ? "#F8F6F2" : "#070809";
+      // Base color adapts to theme
+      ctx.fillStyle = currentTheme === "volcanic" ? "#F8F6F2" : "#070809";
       ctx.fillRect(0, 0, w, h);
 
       // If intensity is 0, just paint the base color and stop
@@ -122,7 +122,7 @@ export function AnimatedBackground() {
     if (!paused) {
       draw();
     } else {
-      ctx.fillStyle = theme === "light" ? "#F8F6F2" : "#0B0D0E";
+      ctx.fillStyle = theme === "volcanic" ? "#F8F6F2" : "#0B0D0E";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 

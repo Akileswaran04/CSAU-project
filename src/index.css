@@ -115,20 +115,20 @@
   --radius-3xl: 20px;
 }
 
-/* ─── LIGHT THEME OVERRIDES (Volcanic / Warm Ember) ──────────────────────── */
-[data-theme="light"] {
+/* ─── VOLCANIC THEME OVERRIDES (Warm Ember / Ivory) ────────────────────── */
+[data-theme="volcanic"] {
   /* Accent primary — Lava (warm volcanic orange-brown) */
   --color-accent-primary: #9F4C2F;
   --color-accent-primary-hover: #8E351C;
   --color-accent-primary-muted: rgba(159, 76, 47, 0.12);
   --color-accent-primary-glow: rgba(159, 76, 47, 0.25);
 
-  /* Backgrounds — warm ivory / matte cream */
+  /* Backgrounds — warm ivory / matte cream (no pure white) */
   --color-bg-base: #F8F6F2;
-  --color-bg-surface: #FFFFFF;
+  --color-bg-surface: #FCFAF7;
   --color-bg-elevated: #EFE9E2;
-  --color-bg-sidebar: rgba(248, 246, 242, 0.95);
-  --color-bg-header: rgba(255, 255, 255, 0.90);
+  --color-bg-sidebar: rgba(248, 246, 242, 0.93);
+  --color-bg-header: rgba(248, 246, 242, 0.88);
 
   /* Foreground text — warm charcoal */
   --color-fg-default: #1B1714;
@@ -158,20 +158,20 @@
   --color-diff-medium: #C17A2A;
   --color-diff-hard: #B5482D;
 
-  /* Glass primitives (light) — warm ivory tones */
-  --color-glass-bg: rgba(0, 0, 0, 0.02);
+  /* Glass primitives — warm ivory tones, subtle volcanic tint */
+  --color-glass-bg: rgba(159, 76, 47, 0.03);
   --color-glass-border: #D7CDC4;
-  --color-glass-white-02: rgba(0, 0, 0, 0.02);
-  --color-glass-white-03: rgba(0, 0, 0, 0.03);
-  --color-glass-white-04: rgba(0, 0, 0, 0.04);
-  --color-glass-white-06: rgba(0, 0, 0, 0.06);
-  --color-glass-white-08: rgba(0, 0, 0, 0.08);
-  --color-glass-white-10: rgba(0, 0, 0, 0.10);
+  --color-glass-white-02: rgba(159, 76, 47, 0.02);
+  --color-glass-white-03: rgba(159, 76, 47, 0.03);
+  --color-glass-white-04: rgba(159, 76, 47, 0.04);
+  --color-glass-white-06: rgba(159, 76, 47, 0.06);
+  --color-glass-white-08: rgba(159, 76, 47, 0.08);
+  --color-glass-white-10: rgba(159, 76, 47, 0.10);
 
   /* Glass tint for component backgrounds */
   --color-glass-tint: rgba(159, 76, 47, 0.04);
 
-  /* Lava-tinted glass (light) */
+  /* Lava-tinted glass */
   --color-glass-blue-03: rgba(159, 76, 47, 0.03);
   --color-glass-blue-06: rgba(159, 76, 47, 0.06);
   --color-glass-blue-08: rgba(159, 76, 47, 0.08);
@@ -192,7 +192,7 @@
   --color-glass-jade-25: rgba(159, 76, 47, 0.25);
   --color-glass-jade-30: rgba(159, 76, 47, 0.30);
 
-  /* Shadows (light) — soft, warm */
+  /* Shadows — soft, warm, minimal elevation */
   --shadow-ink-heavy: 0 8px 40px -8px rgba(0, 0, 0, 0.06);
   --shadow-accent-subtle: 0 8px 40px -8px rgba(159, 76, 47, 0.06);
   --shadow-accent-medium: 0 8px 40px -8px rgba(159, 76, 47, 0.10);

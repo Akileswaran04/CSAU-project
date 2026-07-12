@@ -552,21 +552,21 @@ export function TunnelBackground() {
       const unsubIntensity = useSettingsStore.subscribe((state) => {
         currentIntensity = state.backgroundIntensity;
         const newTheme = state.theme;
-        const isLight = newTheme === "light";
-        const bgColor = isLight ? "#F2EFE8" : "#05080A";
+        const isVolcanic = newTheme === "volcanic";
+        const bgColor = isVolcanic ? "#F2EFE8" : "#05080A";
         scene.background = new THREE.Color(bgColor);
         (scene.fog as THREE.Fog).color.set(bgColor);
         finalPassUniforms.uBg.value = hexToVec3(
-          isLight ? "#EFEBE3" : "#05080A",
+          isVolcanic ? "#EFEBE3" : "#05080A",
         );
         // Update tunnel colors — warm volcanic palette
-        tunnelUniforms.uColLow.value = hexToVec3(isLight ? "#D7CDC4" : "#10151A");
-        tunnelUniforms.uColHigh.value = hexToVec3(isLight ? "#C98A68" : "#4C8DFF");
+        tunnelUniforms.uColLow.value = hexToVec3(isVolcanic ? "#D7CDC4" : "#10151A");
+        tunnelUniforms.uColHigh.value = hexToVec3(isVolcanic ? "#C98A68" : "#4C8DFF");
         // Update flame colors — warm ember glow
-        finalPassUniforms.uFlameA.value = hexToVec3(isLight ? "#9F4C2F" : "#4C8DFF");
-        finalPassUniforms.uFlameB.value = hexToVec3(isLight ? "#C98A68" : "#2563EB");
+        finalPassUniforms.uFlameA.value = hexToVec3(isVolcanic ? "#9F4C2F" : "#4C8DFF");
+        finalPassUniforms.uFlameB.value = hexToVec3(isVolcanic ? "#C98A68" : "#2563EB");
         // Update atmosphere motes — warm copper
-        atmoUniforms.uColor.value = hexToVec3(isLight ? "#C98A68" : "#4C8DFF");
+        atmoUniforms.uColor.value = hexToVec3(isVolcanic ? "#C98A68" : "#4C8DFF");
       });
 
       cleanupFns.push(unsubIntensity);

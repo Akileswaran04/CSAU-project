@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type ThemeMode = "dark" | "light";
+export type ThemeMode = "dark" | "volcanic";
 
 export interface SettingsState {
   backgroundIntensity: number; // 0 = off, 100 = full
@@ -37,6 +37,15 @@ export const useSettingsStore = create<SettingsState>()(
         musicVolume: state.musicVolume,
         sfxVolume: state.sfxVolume,
       }),
+      merge: (persisted, current) => {
+        const p = persisted as Record<string, unknown> | null | undefined;
+        return {
+          ...current,
+          ...p,
+          // Migrate legacy "light" theme → "volcanic"
+          theme: p?.theme === "light" ? "volcanic" : (p?.theme as ThemeMode) ?? current.theme,
+        };
+      },
     }
   )
 );

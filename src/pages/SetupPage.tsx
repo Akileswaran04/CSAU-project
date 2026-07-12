@@ -976,36 +976,57 @@ export function SetupPage() {
               border: "1px solid var(--color-glass-white-06)",
             }}
           >
-            {modeOptions.map(({ id, label, icon: Icon, description }) => (
-              <button
-                key={id}
-                onClick={() => !isLocked && setGameMode(id)}
-                disabled={isLocked}
-                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-display font-medium transition-all duration-200 ${
-                  gameMode === id ? "text-white" : "text-white/40 hover:text-white/70"
-                } ${isLocked ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                title={description}
-              >
-                {gameMode === id && (
-                  <motion.div
-                    layoutId="game-mode-bg"
-                    className="absolute inset-0 rounded-lg"
-                    style={{
-                      background: "var(--color-glass-blue-10)",
-                      border: "1px solid var(--color-glass-blue-20)",
-                    }}
-                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  />
-                )}
-                <Icon size={16} className="relative z-10" aria-hidden="true" />
-                <span className="relative z-10">{label}</span>
-              </button>
-            ))}
+            {modeOptions.map(({ id, label, icon: Icon, description }) => {
+              const isOnline = id === "online";
+              return (
+                <button
+                  key={id}
+                  onClick={() => {
+                    if (isLocked) return;
+                    if (isOnline) {
+                      toast.info("Online mode is temporarily unavailable — coming soon!");
+                      return;
+                    }
+                    setGameMode(id);
+                  }}
+                  disabled={isLocked || isOnline}
+                  className={`relative flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-display font-medium transition-all duration-200 ${
+                    gameMode === id ? "text-white" : "text-white/40 hover:text-white/70"
+                  } ${(isLocked || isOnline) ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  title={isOnline ? "Coming soon — check back later" : description}
+                >
+                  {gameMode === id && !isOnline && (
+                    <motion.div
+                      layoutId="game-mode-bg"
+                      className="absolute inset-0 rounded-lg"
+                      style={{
+                        background: "var(--color-glass-blue-10)",
+                        border: "1px solid var(--color-glass-blue-20)",
+                      }}
+                      transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    />
+                  )}
+                  <Icon size={16} className="relative z-10" aria-hidden="true" />
+                  <span className="relative z-10">{label}</span>
+                  {isOnline && (
+                    <span
+                      className="relative z-10 text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                      style={{
+                        background: "var(--color-alert-amber-muted)",
+                        color: "var(--color-alert-amber)",
+                      }}
+                    >
+                      Soon
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
           <p className="text-white/30 text-xs mt-2 font-display">
             {gameMode === "offline"
               ? "Add 2+ teams and play on this device — no server needed"
-              : "Connect to the game server to play with others across devices"}
+              : "Online mode is temporarily unavailable — play locally for now"}
           </p>
         </div>
 

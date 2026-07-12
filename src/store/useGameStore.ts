@@ -257,6 +257,15 @@ export const useGameStore = create<GameState>()(
         resultsSaved: state.resultsSaved,
         gameMode: state.gameMode,
       }),
+      merge: (persisted, current) => {
+        const p = persisted as Record<string, unknown> | null | undefined;
+        return {
+          ...current,
+          ...p,
+          // Online mode is temporarily unavailable — force to offline
+          gameMode: p?.gameMode === "online" ? "offline" : (p?.gameMode as GameMode) ?? current.gameMode,
+        };
+      },
     }
   )
 );

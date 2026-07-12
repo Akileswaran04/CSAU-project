@@ -56,6 +56,44 @@ function ParticleField() {
   );
 }
 
+/* ─── Subtle progress percentage ───
+ *   Counts 0→100 in sync with the wave bar using the same timing (350ms delay,
+ *   easeInOut). Uses rAF for smooth, frame-accurate updates.
+ */
+function ProgressNumber({ duration: dur }: { duration: number }) {
+  const [pct, setPct] = useState(0);
+
+  useEffect(() => {
+    const start = performance.now();
+    const delay = 350; // matches WaveBar delay (0.35s)
+    const animDur = dur - 300; // matches WaveBar duration: (dur/1000 - 0.3) * 1000
+    let raf: number;
+
+    const tick = () => {
+      const elapsed = performance.now() - start;
+      const t = Math.max(0, Math.min(1, (elapsed - delay) / animDur));
+      // easeInOut
+      const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      setPct(Math.round(eased * 100));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [dur]);
+
+  return (
+    <motion.p
+      className="text-center font-mono text-[11px] tabular-nums tracking-[0.15em]"
+      style={{ color: "var(--color-fg-faint)" }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 0.55 }}
+      transition={{ delay: 0.5, duration: 0.4 }}
+    >
+      {String(pct).padStart(2, "0")}%
+    </motion.p>
+  );
+}
+
 /* ─── Wave progression bar ───
  *   A slim bar with a gradient fill that shimmers with a wave animation.
  *   The leading edge has a soft glow, and the filled portion has a
@@ -307,8 +345,9 @@ export function SplashScreen({
         </motion.p>
 
         {/* Wave progression bar */}
-        <div className="mt-2">
+        <div className="mt-2 flex flex-col items-center gap-2">
           <WaveBar duration={duration} />
+          <ProgressNumber duration={duration} />
         </div>
 
         {/* Tap hint */}
