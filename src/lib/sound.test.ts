@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { sounds } from "./sound";
+import { sounds, soundManager, SoundManager } from "./sound";
 
 describe("sound module", () => {
   beforeEach(() => {
@@ -7,7 +7,7 @@ describe("sound module", () => {
   });
 
   describe("exports", () => {
-    it("exports all 7 expected sound effect names", () => {
+    it("exports all 11 expected sound effect names", () => {
       const expected = [
         "diceRoll",
         "correct",
@@ -15,7 +15,11 @@ describe("sound module", () => {
         "forcedRiddle",
         "victory",
         "turnAdvance",
+        "hop",
         "chime",
+        "buttonClick",
+        "gameStart",
+        "gameEnd",
       ];
       expected.forEach((name) => {
         expect(sounds).toHaveProperty(name);
@@ -31,33 +35,36 @@ describe("sound module", () => {
     });
   });
 
-  describe("sound.play() — error resilience", () => {
-    it("diceRoll play does not throw", () => {
-      expect(() => sounds.diceRoll.play()).not.toThrow();
+  describe("soundManager", () => {
+    it("is a SoundManager instance", () => {
+      expect(soundManager).toBeInstanceOf(SoundManager);
     });
 
-    it("correct play does not throw", () => {
-      expect(() => sounds.correct.play()).not.toThrow();
+    it("starts with default volumes", () => {
+      expect(soundManager.sfxVolume).toBe(0.7);
+      expect(soundManager.musicVolume).toBe(0.3);
     });
 
-    it("incorrect play does not throw", () => {
-      expect(() => sounds.incorrect.play()).not.toThrow();
+    it("clamps volume to 0-1 range", () => {
+      soundManager.sfxVolume = 2;
+      expect(soundManager.sfxVolume).toBe(1);
+      soundManager.sfxVolume = -1;
+      expect(soundManager.sfxVolume).toBe(0);
     });
 
-    it("forcedRiddle play does not throw", () => {
-      expect(() => sounds.forcedRiddle.play()).not.toThrow();
+    it("play() does not throw before init", () => {
+      expect(() => soundManager.play("diceRoll")).not.toThrow();
+      expect(() => soundManager.play("correct")).not.toThrow();
     });
 
-    it("victory play does not throw", () => {
-      expect(() => sounds.victory.play()).not.toThrow();
+    it("toggleMusic returns boolean state", () => {
+      // Not initialized, so toggleMusic should return false
+      // (no music howl to play)
+      expect(typeof soundManager.toggleMusic()).toBe("boolean");
     });
 
-    it("turnAdvance play does not throw", () => {
-      expect(() => sounds.turnAdvance.play()).not.toThrow();
-    });
-
-    it("chime play does not throw", () => {
-      expect(() => sounds.chime.play()).not.toThrow();
+    it("destroy cleans up without throwing", () => {
+      expect(() => soundManager.destroy()).not.toThrow();
     });
   });
 });

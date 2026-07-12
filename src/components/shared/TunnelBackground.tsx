@@ -559,14 +559,14 @@ export function TunnelBackground() {
         finalPassUniforms.uBg.value = hexToVec3(
           isLight ? "#EFEBE3" : "#05080A",
         );
-        // Update tunnel colors — jade palette
-        tunnelUniforms.uColLow.value = hexToVec3(isLight ? "#C8D8F5" : "#10151A");
-        tunnelUniforms.uColHigh.value = hexToVec3(isLight ? "#3B82F6" : "#4C8DFF");
-        // Update flame colors
-        finalPassUniforms.uFlameA.value = hexToVec3(isLight ? "#3B82F6" : "#4C8DFF");
-        finalPassUniforms.uFlameB.value = hexToVec3(isLight ? "#2563EB" : "#2563EB");
-        // Update atmosphere motes
-        atmoUniforms.uColor.value = hexToVec3(isLight ? "#3B82F6" : "#4C8DFF");
+        // Update tunnel colors — warm volcanic palette
+        tunnelUniforms.uColLow.value = hexToVec3(isLight ? "#D7CDC4" : "#10151A");
+        tunnelUniforms.uColHigh.value = hexToVec3(isLight ? "#C98A68" : "#4C8DFF");
+        // Update flame colors — warm ember glow
+        finalPassUniforms.uFlameA.value = hexToVec3(isLight ? "#9F4C2F" : "#4C8DFF");
+        finalPassUniforms.uFlameB.value = hexToVec3(isLight ? "#C98A68" : "#2563EB");
+        // Update atmosphere motes — warm copper
+        atmoUniforms.uColor.value = hexToVec3(isLight ? "#C98A68" : "#4C8DFF");
       });
 
       cleanupFns.push(unsubIntensity);

@@ -1,12 +1,32 @@
+import { useEffect, useCallback } from "react";
 import { useSettingsStore } from "../store/useSettingsStore";
 import { motion } from "framer-motion";
-import { Monitor, Eye, EyeOff, Sun, Moon } from "lucide-react";
+import {
+  Monitor,
+  Eye,
+  EyeOff,
+  Sun,
+  Moon,
+  Volume2,
+  Music,
+} from "lucide-react";
 import { PanelShell } from "../components/shared/PanelShell";
 import { Toggle } from "../components/shared/Toggle";
 import { TunnelBackground } from "../components/shared/TunnelBackground";
+import { soundManager } from "../lib/sound";
 
 export function SettingsPage() {
-  const { backgroundIntensity, setBackgroundIntensity, theme, setTheme } = useSettingsStore();
+  const {
+    backgroundIntensity,
+    setBackgroundIntensity,
+    theme,
+    setTheme,
+    musicVolume,
+    sfxVolume,
+    setMusicVolume,
+    setSfxVolume,
+  } = useSettingsStore();
+
   const isOff = backgroundIntensity === 0;
   const isLow = backgroundIntensity > 0 && backgroundIntensity < 40;
   const isMedium = backgroundIntensity >= 40 && backgroundIntensity < 75;
@@ -25,6 +45,26 @@ export function SettingsPage() {
     { label: "Medium", value: 60, icon: Eye },
     { label: "Full", value: 100, icon: Eye },
   ] as const;
+
+  // Sync store volumes → sound manager
+  useEffect(() => {
+    soundManager.sfxVolume = sfxVolume / 100;
+  }, [sfxVolume]);
+
+  useEffect(() => {
+    soundManager.musicVolume = musicVolume / 100;
+  }, [musicVolume]);
+
+  // Preview sound on sfx slider change
+  const handleSfxChange = useCallback(
+    (val: number) => {
+      setSfxVolume(val);
+      if (val > 0) {
+        soundManager.play("buttonClick");
+      }
+    },
+    [setSfxVolume],
+  );
 
   return (
     <div className="min-h-screen p-6">
@@ -46,13 +86,151 @@ export function SettingsPage() {
               Settings
             </h1>
             <p className="mt-1" style={{ color: "var(--color-fg-muted)" }}>
-              Adjust visual preferences and performance options
+              Adjust visual and audio preferences
             </p>
           </div>
         </div>
 
         <div className="space-y-4">
-          {/* Background intensity */}
+          {/* ─── Audio Settings ─── */}
+          <PanelShell title="Audio" variant="solid">
+            <div className="space-y-6">
+              {/* SFX Volume */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Volume2
+                      size={16}
+                      style={{ color: "var(--color-fg-muted)" }}
+                    />
+                    <label
+                      className="text-sm font-display font-medium"
+                      style={{ color: "var(--color-fg-muted)" }}
+                    >
+                      Sound Effects
+                    </label>
+                  </div>
+                  <motion.span
+                    key={sfxVolume}
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-xs font-mono font-bold px-3 py-1.5 rounded-lg"
+                    style={{
+                      background: "var(--color-bg-elevated)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      color:
+                        sfxVolume === 0
+                          ? "var(--color-accent-danger)"
+                          : "var(--color-accent-primary)",
+                    }}
+                  >
+                    {sfxVolume === 0 ? "Muted" : `${sfxVolume}%`}
+                  </motion.span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={sfxVolume}
+                  onChange={(e) => handleSfxChange(Number(e.target.value))}
+                  className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, var(--color-accent-primary) ${sfxVolume}%, rgba(255,255,255,0.06) ${sfxVolume}%)`,
+                    accentColor: "var(--color-accent-primary)",
+                  }}
+                />
+                <div className="flex justify-between px-0.5">
+                  {[0, 25, 50, 75, 100].map((tick) => (
+                    <span
+                      key={tick}
+                      className="text-[10px] font-mono"
+                      style={{ color: "var(--color-fg-faint)" }}
+                    >
+                      {tick}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Music Volume */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Music
+                      size={16}
+                      style={{
+                        color:
+                          musicVolume > 0
+                            ? "var(--color-accent-primary)"
+                            : "var(--color-fg-muted)",
+                      }}
+                    />
+                    <label
+                      className="text-sm font-display font-medium"
+                      style={{ color: "var(--color-fg-muted)" }}
+                    >
+                      Background Music
+                    </label>
+                  </div>
+                  <motion.span
+                    key={musicVolume}
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-xs font-mono font-bold px-3 py-1.5 rounded-lg"
+                    style={{
+                      background: "var(--color-bg-elevated)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      color:
+                        musicVolume === 0
+                          ? "var(--color-accent-danger)"
+                          : "var(--color-accent-primary)",
+                    }}
+                  >
+                    {musicVolume === 0 ? "Off" : `${musicVolume}%`}
+                  </motion.span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={musicVolume}
+                  onChange={(e) => setMusicVolume(Number(e.target.value))}
+                  className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, var(--color-accent-primary) ${musicVolume}%, rgba(255,255,255,0.06) ${musicVolume}%)`,
+                    accentColor: "var(--color-accent-primary)",
+                  }}
+                />
+                <div className="flex justify-between px-0.5">
+                  {[0, 25, 50, 75, 100].map((tick) => (
+                    <span
+                      key={tick}
+                      className="text-[10px] font-mono"
+                      style={{ color: "var(--color-fg-faint)" }}
+                    >
+                      {tick}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Audio tip */}
+              <div
+                className="flex items-start gap-2 p-3 rounded-xl"
+                style={{
+                  background: "var(--color-bg-elevated)",
+                  borderLeft: "2px solid var(--color-accent-primary)",
+                }}
+              >
+                <p className="text-xs leading-relaxed" style={{ color: "var(--color-fg-muted)" }}>
+                  Sound effects and music are generated procedurally — no audio files needed.
+                  Click the SFV slider to preview a sound. Music plays automatically during the game.
+                </p>
+              </div>
+            </div>
+          </PanelShell>
+
+          {/* ─── Background intensity ─── */}
           <PanelShell title="Background Effects" variant="solid">
             <div className="space-y-6">
               {/* Preset buttons — flat segmented control */}
@@ -63,7 +241,7 @@ export function SettingsPage() {
                     <button
                       key={value}
                       onClick={() => setBackgroundIntensity(value)}
-                      className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-xl transition-all cursor-pointer`}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 rounded-xl transition-all cursor-pointer"
                       style={{
                         background: "var(--color-bg-elevated)",
                         border: isActive
@@ -247,7 +425,7 @@ export function SettingsPage() {
             </div>
           </PanelShell>
 
-          {/* Theme toggle */}
+          {/* ─── Theme toggle ─── */}
           <PanelShell title="Appearance" variant="solid">
             <div className="space-y-4">
               <p className="text-sm font-display" style={{ color: "var(--color-fg-muted)" }}>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
+import { useSettingsStore } from "../store/useSettingsStore";
 
 /* ─── Asset URLs ─── */
 const BG_IMAGE_1 =
@@ -34,7 +35,13 @@ function RevealLayer({ image }: { image: string }) {
 /* ─── Hero Page ─── */
 export function HeroPage() {
   const navigate = useNavigate();
+  const theme = useSettingsStore((s) => s.theme);
+  const setTheme = useSettingsStore((s) => s.setTheme);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  }, [theme, setTheme]);
 
   // ─── Spotlight cursor tracking with smooth lerp (writes to CSS var — no React re-renders!) ───
   const mouseRef = useRef({ x: -999, y: -999 });
@@ -125,13 +132,27 @@ export function HeroPage() {
           </button>
         </div>
 
-        {/* Right: Play Now (desktop) */}
-        <button
-          className="hidden md:block bg-white text-gray-900 text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-gray-100 transition-colors"
-          onClick={() => navigate("/setup")}
-        >
-          Play Now
-        </button>
+        {/* Right: Theme toggle + Play Now (desktop) */}
+        <div className="hidden md:flex items-center gap-3">
+          <button
+            onClick={toggleTheme}
+            className="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white p-2.5 rounded-full transition-all hover:scale-105 active:scale-95"
+            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            title={theme === "dark" ? "Light theme" : "Dark theme"}
+          >
+            {theme === "dark" ? (
+              <Sun size={16} aria-hidden="true" />
+            ) : (
+              <Moon size={16} aria-hidden="true" />
+            )}
+          </button>
+          <button
+            className="bg-white text-gray-900 text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-gray-100 transition-colors"
+            onClick={() => navigate("/setup")}
+          >
+            Play Now
+          </button>
+        </div>
 
         {/* Mobile hamburger */}
         <button
@@ -224,15 +245,26 @@ export function HeroPage() {
               {label}
             </button>
           ))}
-          <button
-            className="mt-4 bg-white text-gray-900 text-sm font-semibold px-8 py-3 rounded-full hover:bg-gray-100 transition-colors"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              navigate("/setup");
-            }}
-          >
-            Play Now
-          </button>
+          <div className="flex items-center gap-3 mt-4">
+            <button
+              onClick={() => {
+                toggleTheme();
+              }}
+              className="bg-white/15 hover:bg-white/25 border border-white/30 text-white p-3 rounded-full transition-all"
+              aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            >
+              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button
+              className="bg-white text-gray-900 text-sm font-semibold px-8 py-3 rounded-full hover:bg-gray-100 transition-colors"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                navigate("/setup");
+              }}
+            >
+              Play Now
+            </button>
+          </div>
         </div>
       )}
     </div>

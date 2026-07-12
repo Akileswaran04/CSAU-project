@@ -115,42 +115,52 @@
   --radius-3xl: 20px;
 }
 
-/* ─── LIGHT THEME OVERRIDES (jade) ──────────────────────────────────────── */
+/* ─── LIGHT THEME OVERRIDES (Volcanic / Warm Ember) ──────────────────────── */
 [data-theme="light"] {
-  /* Accent primary — Jade (warm light bg contrast) */
-  --color-accent-primary: #2FD9A8;
-  --color-accent-primary-hover: #26C99A;
-  --color-accent-primary-muted: rgba(47, 217, 168, 0.12);
-  --color-accent-primary-glow: rgba(47, 217, 168, 0.25);
+  /* Accent primary — Lava (warm volcanic orange-brown) */
+  --color-accent-primary: #9F4C2F;
+  --color-accent-primary-hover: #8E351C;
+  --color-accent-primary-muted: rgba(159, 76, 47, 0.12);
+  --color-accent-primary-glow: rgba(159, 76, 47, 0.25);
 
-  /* Backgrounds — warm ivory / cream */
-  --color-bg-base: #F5F0EB;
-  --color-bg-surface: #FDFAF5;
-  --color-bg-elevated: #EDE8E0;
-  --color-bg-sidebar: rgba(245, 240, 235, 0.95);
-  --color-bg-header: rgba(253, 250, 245, 0.90);
+  /* Backgrounds — warm ivory / matte cream */
+  --color-bg-base: #F8F6F2;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-elevated: #EFE9E2;
+  --color-bg-sidebar: rgba(248, 246, 242, 0.95);
+  --color-bg-header: rgba(255, 255, 255, 0.90);
 
-  /* Foreground text — solid dark charcoal */
-  --color-fg-default: #1A1D23;
-  --color-fg-muted: #4B5563;
-  --color-fg-subtle: #6B7280;
-  --color-fg-faint: #5C6B7D;
+  /* Foreground text — warm charcoal */
+  --color-fg-default: #1B1714;
+  --color-fg-muted: #5E534A;
+  --color-fg-subtle: #7B6F65;
+  --color-fg-faint: #9A8E84;
 
-  /* Accent gold */
-  --color-accent-gold: #B9860B;
-  --color-accent-gold-muted: rgba(185, 134, 11, 0.15);
+  /* Accent gold — warm copper */
+  --color-accent-gold: #C98A68;
+  --color-accent-gold-muted: rgba(201, 138, 104, 0.15);
 
-  /* Accent danger */
-  --color-accent-danger: #D1383D;
-  --color-accent-danger-muted: rgba(209, 56, 61, 0.15);
+  /* Accent danger — warm amber-red */
+  --color-accent-danger: #C17A2A;
+  --color-accent-danger-muted: rgba(193, 122, 42, 0.15);
 
-  /* Accent success */
-  --color-accent-success: #2DAA7E;
-  --color-accent-success-muted: rgba(45, 170, 126, 0.15);
+  /* Accent success — muted forest */
+  --color-accent-success: #597C5C;
+  --color-accent-success-muted: rgba(89, 124, 92, 0.15);
 
-  /* Glass primitives (light) */
-  --color-glass-bg: rgba(0, 0, 0, 0.03);
-  --color-glass-border: rgba(0, 0, 0, 0.08);
+  /* Alert amber */
+  --color-alert-amber: #C17A2A;
+  --color-alert-amber-muted: rgba(193, 122, 42, 0.15);
+  --color-alert-amber-glow: rgba(193, 122, 42, 0.4);
+
+  /* Difficulty colors */
+  --color-diff-easy: #597C5C;
+  --color-diff-medium: #C17A2A;
+  --color-diff-hard: #B5482D;
+
+  /* Glass primitives (light) — warm ivory tones */
+  --color-glass-bg: rgba(0, 0, 0, 0.02);
+  --color-glass-border: #D7CDC4;
   --color-glass-white-02: rgba(0, 0, 0, 0.02);
   --color-glass-white-03: rgba(0, 0, 0, 0.03);
   --color-glass-white-04: rgba(0, 0, 0, 0.04);
@@ -159,41 +169,41 @@
   --color-glass-white-10: rgba(0, 0, 0, 0.10);
 
   /* Glass tint for component backgrounds */
-  --color-glass-tint: rgba(47, 217, 168, 0.04);
+  --color-glass-tint: rgba(159, 76, 47, 0.04);
 
-  /* Jade-tinted glass (light) */
-  --color-glass-blue-03: rgba(47, 217, 168, 0.03);
-  --color-glass-blue-06: rgba(47, 217, 168, 0.06);
-  --color-glass-blue-08: rgba(47, 217, 168, 0.08);
-  --color-glass-blue-10: rgba(47, 217, 168, 0.10);
-  --color-glass-blue-12: rgba(47, 217, 168, 0.12);
-  --color-glass-blue-15: rgba(47, 217, 168, 0.15);
-  --color-glass-blue-20: rgba(47, 217, 168, 0.20);
-  --color-glass-blue-25: rgba(47, 217, 168, 0.25);
-  --color-glass-blue-30: rgba(47, 217, 168, 0.30);
-  /* Backward compat: glass-jade → jade (light) */
-  --color-glass-jade-03: rgba(47, 217, 168, 0.03);
-  --color-glass-jade-06: rgba(47, 217, 168, 0.06);
-  --color-glass-jade-08: rgba(47, 217, 168, 0.08);
-  --color-glass-jade-10: rgba(47, 217, 168, 0.10);
-  --color-glass-jade-12: rgba(47, 217, 168, 0.12);
-  --color-glass-jade-15: rgba(47, 217, 168, 0.15);
-  --color-glass-jade-20: rgba(47, 217, 168, 0.20);
-  --color-glass-jade-25: rgba(47, 217, 168, 0.25);
-  --color-glass-jade-30: rgba(47, 217, 168, 0.30);
+  /* Lava-tinted glass (light) */
+  --color-glass-blue-03: rgba(159, 76, 47, 0.03);
+  --color-glass-blue-06: rgba(159, 76, 47, 0.06);
+  --color-glass-blue-08: rgba(159, 76, 47, 0.08);
+  --color-glass-blue-10: rgba(159, 76, 47, 0.10);
+  --color-glass-blue-12: rgba(159, 76, 47, 0.12);
+  --color-glass-blue-15: rgba(159, 76, 47, 0.15);
+  --color-glass-blue-20: rgba(159, 76, 47, 0.20);
+  --color-glass-blue-25: rgba(159, 76, 47, 0.25);
+  --color-glass-blue-30: rgba(159, 76, 47, 0.30);
+  /* Backward compat: glass-jade → lava-tinted */
+  --color-glass-jade-03: rgba(159, 76, 47, 0.03);
+  --color-glass-jade-06: rgba(159, 76, 47, 0.06);
+  --color-glass-jade-08: rgba(159, 76, 47, 0.08);
+  --color-glass-jade-10: rgba(159, 76, 47, 0.10);
+  --color-glass-jade-12: rgba(159, 76, 47, 0.12);
+  --color-glass-jade-15: rgba(159, 76, 47, 0.15);
+  --color-glass-jade-20: rgba(159, 76, 47, 0.20);
+  --color-glass-jade-25: rgba(159, 76, 47, 0.25);
+  --color-glass-jade-30: rgba(159, 76, 47, 0.30);
 
-  /* Shadows (light) */
-  --shadow-ink-heavy: 0 8px 40px -8px rgba(0, 0, 0, 0.08);
-  --shadow-accent-subtle: 0 8px 40px -8px rgba(47, 217, 168, 0.08);
-  --shadow-accent-medium: 0 8px 40px -8px rgba(47, 217, 168, 0.12);
-  --shadow-accent-strong: 0 8px 40px -8px rgba(47, 217, 168, 0.20);
-  --shadow-accent-glow: 0 0 40px rgba(47, 217, 168, 0.15);
-  --shadow-accent-glow-strong: 0 0 40px rgba(47, 217, 168, 0.25);
-  --shadow-gold-glow: 0 0 40px rgba(185, 134, 11, 0.15);
-  --shadow-glass: 0 8px 40px -8px rgba(0, 0, 0, 0.08);
-  --shadow-success: 0 8px 40px -8px rgba(45, 170, 126, 0.20);
-  --shadow-danger: 0 8px 40px -8px rgba(209, 56, 61, 0.20);
-  --shadow-alert-glow: 0 0 40px rgba(242, 153, 74, 0.20);
+  /* Shadows (light) — soft, warm */
+  --shadow-ink-heavy: 0 8px 40px -8px rgba(0, 0, 0, 0.06);
+  --shadow-accent-subtle: 0 8px 40px -8px rgba(159, 76, 47, 0.06);
+  --shadow-accent-medium: 0 8px 40px -8px rgba(159, 76, 47, 0.10);
+  --shadow-accent-strong: 0 8px 40px -8px rgba(159, 76, 47, 0.15);
+  --shadow-accent-glow: 0 0 40px rgba(159, 76, 47, 0.12);
+  --shadow-accent-glow-strong: 0 0 40px rgba(159, 76, 47, 0.20);
+  --shadow-gold-glow: 0 0 40px rgba(201, 138, 104, 0.15);
+  --shadow-glass: 0 8px 40px -8px rgba(0, 0, 0, 0.06);
+  --shadow-success: 0 8px 40px -8px rgba(89, 124, 92, 0.20);
+  --shadow-danger: 0 8px 40px -8px rgba(193, 122, 42, 0.20);
+  --shadow-alert-glow: 0 0 40px rgba(193, 122, 42, 0.25);
 }
 
 /* ─── 2. SEMANTIC TOKENS ────────────────────────────────────────────────── */

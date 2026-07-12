@@ -59,7 +59,7 @@ export function AnimatedBackground() {
       const h = canvas.height;
 
       // Base color adapts to theme — dark bg for dark mode, light bg for light mode
-      ctx.fillStyle = currentTheme === "light" ? "#F5F3F0" : "#070809";
+      ctx.fillStyle = currentTheme === "light" ? "#F8F6F2" : "#070809";
       ctx.fillRect(0, 0, w, h);
 
       // If intensity is 0, just paint the base color and stop
@@ -71,11 +71,12 @@ export function AnimatedBackground() {
       const scale = currentIntensity / 100;
 
       // ── Radial gradient blobs (matching 3D atmosphere palette) ──
+      // Warm volcanic palette — lava, copper, warm cream
       const radialBlobs = [
-        { x: 0.15, y: 0.4, dx: 0.06, dy: 0.08, r: 0.35, freqX: 0.35, freqY: 0.25, base: 0.06, r2: 47, g2: 217, b2: 168 },
-        { x: 0.75, y: 0.2, dx: 0.05, dy: 0.06, r: 0.3, freqX: 0.3, freqY: 0.4, base: 0.04, r2: 255, g2: 217, b2: 102 },
-        { x: 0.5, y: 0.75, dx: 0.06, dy: 0.05, r: 0.25, freqX: 0.2, freqY: 0.3, base: 0.035, r2: 153, g2: 179, b2: 255 },
-        { x: 0.85, y: 0.6, dx: 0.04, dy: 0.06, r: 0.2, freqX: 0.45, freqY: 0.15, base: 0.03, r2: 47, g2: 217, b2: 168 },
+        { x: 0.15, y: 0.4, dx: 0.06, dy: 0.08, r: 0.35, freqX: 0.35, freqY: 0.25, base: 0.06, r2: 159, g2: 76, b2: 47 },
+        { x: 0.75, y: 0.2, dx: 0.05, dy: 0.06, r: 0.3, freqX: 0.3, freqY: 0.4, base: 0.04, r2: 201, g2: 138, b2: 104 },
+        { x: 0.5, y: 0.75, dx: 0.06, dy: 0.05, r: 0.25, freqX: 0.2, freqY: 0.3, base: 0.035, r2: 200, g2: 160, b2: 140 },
+        { x: 0.85, y: 0.6, dx: 0.04, dy: 0.06, r: 0.2, freqX: 0.45, freqY: 0.15, base: 0.03, r2: 89, g2: 124, b2: 92 },
       ];
 
       for (const b of radialBlobs) {
@@ -92,17 +93,13 @@ export function AnimatedBackground() {
       }
 
       // ── Liquid ellipse blobs (deeper, richer tones) ──
+      // Warm volcanic liquid blobs — lava, copper, ember
       const liquidBlobs = [
-        // Jade — brand accent
-        { cx: 0.2, cy: 0.3, rx: 0.3, ry: 0.2, r: 47, g: 217, b: 168, base: 0.06, phase: 0 },
-        // Gold — warm glow
-        { cx: 0.7, cy: 0.5, rx: 0.25, ry: 0.35, r: 255, g: 200, b: 80, base: 0.05, phase: 1.5 },
-        // White-blue — cool contrast
-        { cx: 0.4, cy: 0.7, rx: 0.35, ry: 0.15, r: 180, g: 200, b: 255, base: 0.04, phase: 3.0 },
-        // Deep jade
-        { cx: 0.85, cy: 0.25, rx: 0.2, ry: 0.25, r: 38, g: 184, b: 146, base: 0.045, phase: 4.5 },
-        // Soft gold
-        { cx: 0.1, cy: 0.8, rx: 0.2, ry: 0.3, r: 255, g: 180, b: 70, base: 0.035, phase: 6.0 },
+        { cx: 0.2, cy: 0.3, rx: 0.3, ry: 0.2, r: 159, g: 76, b: 47, base: 0.06, phase: 0 },
+        { cx: 0.7, cy: 0.5, rx: 0.25, ry: 0.35, r: 201, g: 138, b: 104, base: 0.05, phase: 1.5 },
+        { cx: 0.4, cy: 0.7, rx: 0.35, ry: 0.15, r: 200, g: 160, b: 140, base: 0.04, phase: 3.0 },
+        { cx: 0.85, cy: 0.25, rx: 0.2, ry: 0.25, r: 89, g: 124, b: 92, base: 0.045, phase: 4.5 },
+        { cx: 0.1, cy: 0.8, rx: 0.2, ry: 0.3, r: 159, g: 100, b: 60, base: 0.035, phase: 6.0 },
       ];
 
       for (const b of liquidBlobs) {
@@ -125,7 +122,7 @@ export function AnimatedBackground() {
     if (!paused) {
       draw();
     } else {
-      ctx.fillStyle = theme === "light" ? "#F5F3F0" : "#0B0D0E";
+      ctx.fillStyle = theme === "light" ? "#F8F6F2" : "#0B0D0E";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 

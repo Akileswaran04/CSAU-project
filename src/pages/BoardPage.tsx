@@ -10,6 +10,8 @@ import { useGameStore } from "../store/useGameStore";
 import { useDiceRoll } from "../hooks/useDiceRoll";
 import { useForcedRiddle } from "../hooks/useForcedRiddle";
 import { useRiddleStore } from "../store/useRiddleStore";
+import { soundManager } from "../lib/sound";
+import { useSettingsStore } from "../store/useSettingsStore";
 import { boardCells } from "../data/boardConfig";
 import { saveMatchResult } from "../lib/leaderboardHistoryService";
 import { useLeaderboardHistoryStore } from "../store/useLeaderboardHistoryStore";
@@ -240,6 +242,8 @@ export function BoardPage() {
   const forcedCurrentRiddle = useRiddleStore((s) => s.currentRiddle);
   const { roll, isAnimating } = useDiceRoll();
   const { checkAndTriggerForcedRiddle } = useForcedRiddle();
+  const sfxVolume = useSettingsStore((s) => s.sfxVolume);
+  const musicVolume = useSettingsStore((s) => s.musicVolume);
   const rollInProgress = useRef(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
 
@@ -306,11 +310,25 @@ export function BoardPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [gamePhase, handleRoll]);
 
+  // Sync volumes from settings store to sound manager
   useEffect(() => {
+    soundManager.sfxVolume = sfxVolume / 100;
+  }, [sfxVolume]);
+
+  useEffect(() => {
+    soundManager.musicVolume = musicVolume / 100;
+  }, [musicVolume]);
+
+  // Background music: start on game start, stop on game end
+  useEffect(() => {
+    if (gamePhase === "active" && teams.length > 0) {
+      soundManager.startMusic();
+    }
     if (gamePhase === "ended") {
+      soundManager.stopMusic();
       confetti({ particleCount: 300, spread: 180, origin: { y: 0.3 } });
     }
-  }, [gamePhase]);
+  }, [gamePhase, teams.length]);
 
   // ─── Record match to persistent history on game end ───
   const resultsSaved = useGameStore((s) => s.resultsSaved);
