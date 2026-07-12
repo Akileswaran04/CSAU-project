@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, SkipForward, Timer as TimerIcon, Eye, EyeOff, Cpu, BookOpen } from "lucide-react";
+import { Check, X, SkipForward, Timer as TimerIcon, Cpu, BookOpen, ArrowRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -89,6 +89,8 @@ function Timer({ seconds, onTimeout }: { seconds: number; onTimeout: () => void 
   );
 }
 
+type SubmissionState = "idle" | "submitted" | "timeout";
+
 export function RiddleModal() {
   const {
     teams,
@@ -105,21 +107,22 @@ export function RiddleModal() {
     useRiddleStore();
 
   const addEntry = useLogStore((s) => s.addEntry);
-  const [showAnswer, setShowAnswer] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [submissionState, setSubmissionState] = useState<SubmissionState>("idle");
   const verdictLockRef = useRef(false);
 
   const currentTeam = teams.find((t) => t.id === activeTeamId);
 
-  // Close the riddle: Radix handles the exit animation via data-state transitions,
-  // so we can update state directly without a setTimeout delay.
-  const closeRiddleModal = useCallback(() => {
-    closeRiddle();
-    setIsRiddleOpen(false);
-    advanceTurn();
-    verdictLockRef.current = false;
-  }, [closeRiddle, setIsRiddleOpen, advanceTurn]);
+  // Reset state when riddle opens
+  useEffect(() => {
+    if (isRiddleOpen) {
+      setSelectedIndex(null);
+      setSubmissionState("idle");
+      verdictLockRef.current = false;
+    }
+  }, [isRiddleOpen]);
 
-  const handleVerdict = useCallback(
+  const applyVerdict = useCallback(
     (isCorrect: boolean) => {
       if (!currentRiddle || !currentDifficulty || !currentTeam) return;
       if (verdictLockRef.current) return;
@@ -166,20 +169,31 @@ export function RiddleModal() {
 
         toast.error(`${currentTeam.name} got it wrong`);
       }
-
-      closeRiddleModal();
     },
-    [
-      currentRiddle,
-      currentDifficulty,
-      currentTeam,
-      recordRiddleAttempt,
-      addScore,
-      moveTeam,
-      addEntry,
-      closeRiddleModal,
-    ]
+    [currentRiddle, currentDifficulty, currentTeam, recordRiddleAttempt, addScore, moveTeam, addEntry]
   );
+
+  const handleSubmit = useCallback(() => {
+    if (!currentRiddle) return;
+    if (verdictLockRef.current) return;
+    if (selectedIndex === null) return;
+
+    setSubmissionState("submitted");
+    const isCorrect = selectedIndex === currentRiddle.correctIndex;
+    applyVerdict(isCorrect);
+  }, [currentRiddle, selectedIndex, applyVerdict]);
+
+  const handleTimeout = useCallback(() => {
+    if (verdictLockRef.current) return;
+    setSubmissionState("timeout");
+    applyVerdict(false);
+  }, [applyVerdict]);
+
+  const handleContinue = useCallback(() => {
+    closeRiddle();
+    setIsRiddleOpen(false);
+    advanceTurn();
+  }, [closeRiddle, setIsRiddleOpen, advanceTurn]);
 
   const handleSkip = useCallback(() => {
     if (!currentTeam) return;
@@ -193,48 +207,44 @@ export function RiddleModal() {
       type: "riddle",
     });
 
-    closeRiddleModal();
-  }, [currentTeam, addEntry, closeRiddleModal]);
-
-  const handleTimeout = useCallback(() => {
-    handleVerdict(false);
-  }, [handleVerdict]);
+    closeRiddle();
+    setIsRiddleOpen(false);
+    advanceTurn();
+  }, [currentTeam, addEntry, closeRiddle, setIsRiddleOpen, advanceTurn]);
 
   // Dialog open state managed by our store — Radix reads `open` prop
-  // Since we prevent Esc and outside interaction, the only way the dialog closes
-  // is via closeRiddleModal() which already handles all state. This handler
-  // is a safety net to sync store state if Radix closes for any other reason.
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (!open && !verdictLockRef.current) {
-        // Don't call closeRiddle() here — closeRiddleModal() already handles it.
-        // Just sync the isRiddleOpen state as a safety net.
         setIsRiddleOpen(false);
       }
     },
     [setIsRiddleOpen]
   );
 
-  // Keyboard shortcuts (C = correct, X = incorrect, S = skip)
+  // Keyboard shortcuts (1-4 for options, Enter to submit)
   useEffect(() => {
-    if (!isRiddleOpen) return;
+    if (!isRiddleOpen || submissionState !== "idle") return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      )
-        return;
-      if (e.key === "c" || e.key === "C") handleVerdict(true);
-      else if (e.key === "x" || e.key === "X") handleVerdict(false);
-      else if (e.key === "s" || e.key === "S") handleSkip();
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key >= "1" && e.key <= "4") {
+        setSelectedIndex(parseInt(e.key) - 1);
+      } else if (e.key === "Enter" && selectedIndex !== null) {
+        handleSubmit();
+      } else if (e.key === "s" || e.key === "S") {
+        handleSkip();
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isRiddleOpen, handleVerdict, handleSkip]);
+  }, [isRiddleOpen, submissionState, selectedIndex, handleSubmit, handleSkip]);
 
   if (!currentRiddle || !currentDifficulty || !currentTeam) return null;
 
   const timerSeconds = getDifficultyTimer(currentDifficulty);
+  const hasSubmitted = submissionState !== "idle";
+  const isCorrect = hasSubmitted && selectedIndex === currentRiddle.correctIndex;
+  const isTimedOut = submissionState === "timeout";
 
   return (
     <Dialog
@@ -285,10 +295,10 @@ export function RiddleModal() {
                   {currentTeam.name.charAt(0)}
                 </div>
                 <div>
-                <p className="text-white font-display font-medium">
-                  {currentTeam.name}
-                </p>
-                <p className="text-fg-muted text-sm">Current turn</p>
+                  <p className="text-white font-display font-medium">
+                    {currentTeam.name}
+                  </p>
+                  <p className="text-fg-muted text-sm">Current turn</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -322,12 +332,14 @@ export function RiddleModal() {
               </div>
             </div>
 
-            {/* Timer */}
-            <div className="flex justify-center">
-              <Timer seconds={timerSeconds} onTimeout={handleTimeout} />
-            </div>
+            {/* Timer (only show during active answering) */}
+            {!hasSubmitted && (
+              <div className="flex justify-center">
+                <Timer seconds={timerSeconds} onTimeout={handleTimeout} />
+              </div>
+            )}
 
-            {/* Riddle */}
+            {/* Riddle question */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -339,83 +351,204 @@ export function RiddleModal() {
               </p>
             </motion.div>
 
-            {/* Show Answer toggle */}
-            <div className="flex justify-center">
-              <button
-                onClick={() => setShowAnswer(!showAnswer)}
-                className="flex items-center gap-2 text-sm text-white/30 hover:text-white/50 transition-colors"
-              >
-                {showAnswer ? <EyeOff size={14} /> : <Eye size={14} />}
-                {showAnswer ? "Hide answer" : "Show answer"}
-              </button>
+            {/* MCQ Options */}
+            <div className="space-y-3">
+              {currentRiddle.options.map((option, idx) => {
+                let optionStyle: React.CSSProperties = {};
+                let icon: React.ReactNode = null;
+                let isSelected = selectedIndex === idx;
+
+                if (hasSubmitted) {
+                  if (idx === currentRiddle.correctIndex) {
+                    // Correct answer — always highlight green
+                    optionStyle = {
+                      background: "rgba(63, 191, 127, 0.12)",
+                      borderColor: "rgba(63, 191, 127, 0.4)",
+                    };
+                    icon = <Check size={18} className="text-accent-success shrink-0" />;
+                  } else if (isSelected) {
+                    // Wrong selection — highlight red
+                    optionStyle = {
+                      background: "rgba(229, 72, 77, 0.12)",
+                      borderColor: "rgba(229, 72, 77, 0.4)",
+                    };
+                    icon = <X size={18} className="text-danger shrink-0" />;
+                  } else {
+                    // Other options — dim
+                    optionStyle = {
+                      opacity: 0.35,
+                    };
+                  }
+                } else if (isSelected) {
+                  optionStyle = {
+                    background: "var(--color-accent-primary-muted)",
+                    borderColor: "var(--color-accent-primary)",
+                  };
+                }
+
+                return (
+                  <motion.button
+                    key={idx}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + idx * 0.05 }}
+                    onClick={() => {
+                      if (!hasSubmitted) setSelectedIndex(idx);
+                    }}
+                    disabled={hasSubmitted}
+                    className="w-full flex items-center gap-3 p-4 rounded-xl text-left transition-all duration-200 cursor-pointer disabled:cursor-default"
+                    style={{
+                      background: optionStyle.background || "var(--color-glass-white-03)",
+                      border: `1px solid ${optionStyle.borderColor || "var(--color-glass-white-06)"}`,
+                      opacity: optionStyle.opacity ?? 1,
+                    }}
+                  >
+                    {/* Option letter */}
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0"
+                      style={{
+                        background: hasSubmitted
+                          ? idx === currentRiddle.correctIndex
+                            ? "rgba(63, 191, 127, 0.2)"
+                            : isSelected
+                              ? "rgba(229, 72, 77, 0.2)"
+                              : "var(--color-glass-white-06)"
+                          : isSelected
+                            ? "var(--color-accent-primary-muted)"
+                            : "var(--color-glass-white-06)",
+                        color: hasSubmitted && idx === currentRiddle.correctIndex
+                          ? "var(--color-accent-success)"
+                          : hasSubmitted && isSelected
+                            ? "var(--color-accent-danger)"
+                            : isSelected
+                              ? "var(--color-accent-primary)"
+                              : "var(--color-fg-muted)",
+                      }}
+                    >
+                      {["A", "B", "C", "D"][idx]}
+                    </div>
+                    <span className="flex-1 text-sm text-white font-display font-medium">
+                      {option}
+                    </span>
+                    {icon}
+                  </motion.button>
+                );
+              })}
             </div>
 
+            {/* Result + Answer reveal */}
             <AnimatePresence>
-              {showAnswer && (
+              {hasSubmitted && (
                 <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="glass-panel overflow-hidden"
-                  style={{
-                    background: 'rgba(255, 184, 48, 0.06)',
-                    borderColor: 'var(--color-accent-gold-muted)',
-                  }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-4"
                 >
-                  <div className="p-4">
-                    <p className="text-accent-gold text-center font-display font-medium">
-                      Answer: {currentRiddle.answer}
+                  {/* Result banner */}
+                  <div
+                    className="glass-panel p-4 text-center"
+                    style={{
+                      background: isCorrect
+                        ? "rgba(63, 191, 127, 0.08)"
+                        : isTimedOut
+                          ? "rgba(242, 153, 74, 0.08)"
+                          : "rgba(229, 72, 77, 0.08)",
+                      borderColor: isCorrect
+                        ? "rgba(63, 191, 127, 0.2)"
+                        : isTimedOut
+                          ? "rgba(242, 153, 74, 0.2)"
+                          : "rgba(229, 72, 77, 0.2)",
+                    }}
+                  >
+                    <p
+                      className="text-lg font-display font-bold"
+                      style={{
+                        color: isCorrect
+                          ? "var(--color-accent-success)"
+                          : isTimedOut
+                            ? "var(--color-alert-amber)"
+                            : "var(--color-accent-danger)",
+                      }}
+                    >
+                      {isTimedOut
+                        ? "⏰ Time's Up!"
+                        : isCorrect
+                          ? "🎉 Correct!"
+                          : "❌ Incorrect"}
                     </p>
+                  </div>
+
+                  {/* Answer explanation */}
+                  <div
+                    className="glass-panel p-4"
+                    style={{
+                      background: "rgba(255, 184, 48, 0.06)",
+                      borderColor: "var(--color-accent-gold-muted)",
+                    }}
+                  >
+                    <p className="text-accent-gold text-sm font-display font-medium mb-1">
+                      Answer: {currentRiddle.options[currentRiddle.correctIndex]}
+                    </p>
+                    <p className="text-white/50 text-sm font-display leading-relaxed">
+                      {currentRiddle.answer}
+                    </p>
+                  </div>
+
+                  {/* Continue button */}
+                  <div className="flex justify-center pt-2">
+                    <Button
+                      onClick={handleContinue}
+                      variant="primary"
+                      size="lg"
+                      className="px-8"
+                    >
+                      <ArrowRight size={18} />
+                      Continue
+                    </Button>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Verdict Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="flex gap-4 pt-2"
-            >
-              <Button
-                onClick={() => handleVerdict(true)}
-                variant="primary"
-                size="lg"
-                className="flex-1 py-4 text-lg font-bold hover:scale-[1.02] active:scale-95"
+            {/* Submit button (only when not submitted) */}
+            {!hasSubmitted && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="flex flex-col items-center gap-3 pt-2"
               >
-                <Check size={24} />
-                Correct
-              </Button>
-              <Button
-                onClick={() => handleVerdict(false)}
-                variant="danger"
-                size="lg"
-                className="flex-1 py-4 text-lg font-bold hover:scale-[1.02] active:scale-95"
-              >
-                <X size={24} />
-                Incorrect
-              </Button>
-            </motion.div>
+                <Button
+                  onClick={handleSubmit}
+                  variant="primary"
+                  size="lg"
+                  className="w-full py-4 text-lg font-bold hover:scale-[1.02] active:scale-95"
+                  disabled={selectedIndex === null}
+                >
+                  <Check size={24} />
+                  Submit Answer
+                </Button>
 
-            {/* Skip option */}
-            <div className="flex justify-center">
-              <Button
-                onClick={handleSkip}
-                variant="ghost"
-                size="sm"
-              >
-                <SkipForward size={16} />
-                Skip / Re-roll
-              </Button>
-            </div>
+                {/* Skip option */}
+                <Button
+                  onClick={handleSkip}
+                  variant="ghost"
+                  size="sm"
+                >
+                  <SkipForward size={16} />
+                  Skip / Re-roll
+                </Button>
+              </motion.div>
+            )}
 
             {/* Keyboard shortcuts hint */}
-            <p className="text-center text-fg-faint text-xs font-mono">
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-fg-subtle">C</kbd> Correct ·{" "}
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-fg-subtle">X</kbd> Incorrect ·{" "}
-              <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-fg-subtle">S</kbd> Skip
-            </p>
+            {!hasSubmitted && (
+              <p className="text-center text-fg-faint text-xs font-mono">
+                <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-fg-subtle">1-4</kbd> Select ·{" "}
+                <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-fg-subtle">Enter</kbd> Submit ·{" "}
+                <kbd className="px-1.5 py-0.5 rounded bg-white/[0.04] text-fg-subtle">S</kbd> Skip
+              </p>
+            )}
           </div>
         </DialogBody>
       </DialogContent>

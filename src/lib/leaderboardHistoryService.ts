@@ -3,6 +3,8 @@ import type { Team } from "../store/useGameStore";
 
 /* ─── LocalStorage fallback types ─── */
 
+export type GameMode = "offline" | "online";
+
 export interface LocalMatch {
   id: string;
   createdAt: string;
@@ -11,6 +13,7 @@ export interface LocalMatch {
   winnerScore: number;
   totalTeams: number;
   teams: LocalMatchTeam[];
+  mode: GameMode;
 }
 
 export interface LocalMatchTeam {
@@ -67,7 +70,7 @@ function writeLocalMatches(matches: LocalMatch[]): void {
 
 /* ─── Public API ─── */
 
-export async function saveMatchResult(teams: Team[]): Promise<void> {
+export async function saveMatchResult(teams: Team[], mode: GameMode = "offline"): Promise<void> {
   if (teams.length === 0) return;
 
   const sorted = [...teams].sort((a, b) => {
@@ -77,7 +80,7 @@ export async function saveMatchResult(teams: Team[]): Promise<void> {
 
   const winner = sorted[0];
 
-  if (isSupabaseConfigured && supabase) {
+  if (mode === "online" && isSupabaseConfigured && supabase) {
     try {
       const { data: matchData, error: matchError } = await supabase
         .from("matches")
@@ -115,7 +118,7 @@ export async function saveMatchResult(teams: Team[]): Promise<void> {
     }
   }
 
-  // Fallback: save to localStorage
+  // Save to localStorage with mode tag
   const localMatch: LocalMatch = {
     id: generateId(),
     createdAt: new Date().toISOString(),
@@ -123,6 +126,7 @@ export async function saveMatchResult(teams: Team[]): Promise<void> {
     winnerName: winner.name,
     winnerScore: winner.score,
     totalTeams: teams.length,
+    mode,
     teams: sorted.map((t, i) => serializeTeam(t, i + 1)),
   };
 
@@ -131,8 +135,9 @@ export async function saveMatchResult(teams: Team[]): Promise<void> {
   writeLocalMatches(existing);
 }
 
-export async function fetchRecentMatches(limit = 20): Promise<LocalMatch[]> {
-  if (isSupabaseConfigured && supabase) {
+export async function fetchRecentMatches(limit = 20, mode?: GameMode): Promise<LocalMatch[]> {
+  // For online mode, try Supabase first
+  if (mode === "online" && isSupabaseConfigured && supabase) {
     try {
       const { data, error } = await supabase
         .from("matches")
@@ -174,6 +179,7 @@ export async function fetchRecentMatches(limit = 20): Promise<LocalMatch[]> {
         winnerName: m.winner_name,
         winnerScore: m.winner_score,
         totalTeams: m.total_teams,
+        mode: "online",
         teams: teamMap.get(m.id) || [],
       }));
     } catch {
@@ -181,11 +187,13 @@ export async function fetchRecentMatches(limit = 20): Promise<LocalMatch[]> {
     }
   }
 
-  // Fallback: read from localStorage
-  return readLocalMatches().slice(0, limit);
+  // Read from localStorage and filter by mode
+  const all = readLocalMatches();
+  const filtered = mode ? all.filter((m) => m.mode === mode) : all;
+  return filtered.slice(0, limit);
 }
 
-export function fetchAllTimeStandings(): {
+export function fetchAllTimeStandings(mode?: GameMode): {
   teamName: string;
   wins: number;
   totalScore: number;
@@ -194,6 +202,7 @@ export function fetchAllTimeStandings(): {
   gamesPlayed: number;
 }[] {
   const matches = readLocalMatches();
+  const filtered = mode ? matches.filter((m) => m.mode === mode) : matches;
 
   const standings = new Map<
     string,
@@ -206,7 +215,7 @@ export function fetchAllTimeStandings(): {
     }
   >();
 
-  for (const match of matches) {
+  for (const match of filtered) {
     for (const team of match.teams) {
       const existing = standings.get(team.teamName) || {
         wins: 0,

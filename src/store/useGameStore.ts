@@ -36,6 +36,7 @@ export interface Team {
 }
 
 export type GamePhase = "idle" | "active" | "paused" | "ended";
+export type GameMode = "offline" | "online";
 
 /** Input type for addTeam — only requires fields the caller provides */
 export type TeamInput = Pick<Team, "name" | "participants" | "color" | "icon">;
@@ -50,6 +51,7 @@ export interface GameState {
   isRiddleOpen: boolean;
   winner: Team | null;
   resultsSaved: boolean;
+  gameMode: GameMode;
 
   // Actions
   addTeam: (team: TeamInput) => void;
@@ -63,6 +65,7 @@ export interface GameState {
   setIsRiddleOpen: (open: boolean) => void;
   setWinner: (team: Team | null) => void;
   setResultsSaved: (saved: boolean) => void;
+  setGameMode: (mode: GameMode) => void;
   advanceTurn: () => void;
   resetGame: () => void;
   moveTeam: (teamId: string, newPosition: number) => void;
@@ -95,6 +98,7 @@ export const useGameStore = create<GameState>()(
       isRiddleOpen: false,
       winner: null,
       resultsSaved: false,
+      gameMode: "offline",
 
       addTeam: (team) => {
         const state = get();
@@ -140,6 +144,7 @@ export const useGameStore = create<GameState>()(
       setIsRiddleOpen: (open) => set({ isRiddleOpen: open }),
       setWinner: (team) => set({ winner: team }),
       setResultsSaved: (saved) => set({ resultsSaved: saved }),
+      setGameMode: (mode) => set({ gameMode: mode }),
 
       advanceTurn: () => {
         set((state) => {
@@ -165,6 +170,7 @@ export const useGameStore = create<GameState>()(
           isRiddleOpen: false,
           winner: null,
           resultsSaved: false,
+          gameMode: "offline",
         }),
 
       moveTeam: (teamId, newPosition) => {
@@ -249,6 +255,7 @@ export const useGameStore = create<GameState>()(
         activeTeamId: state.activeTeamId,
         winner: state.winner,
         resultsSaved: state.resultsSaved,
+        gameMode: state.gameMode,
       }),
     }
   )

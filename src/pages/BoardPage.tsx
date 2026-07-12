@@ -314,14 +314,15 @@ export function BoardPage() {
 
   // ─── Record match to persistent history on game end ───
   const resultsSaved = useGameStore((s) => s.resultsSaved);
+  const gameMode = useGameStore((s) => s.gameMode);
   useEffect(() => {
     if (gamePhase === "ended" && teams.length > 0 && !resultsSaved) {
-      saveMatchResult(teams).then(() => {
+      saveMatchResult(teams, gameMode).then(() => {
         useGameStore.getState().setResultsSaved(true);
         useLeaderboardHistoryStore.getState().loadHistory();
       });
     }
-  }, [gamePhase, teams, resultsSaved]);
+  }, [gamePhase, teams, resultsSaved, gameMode]);
 
   const [boardFullscreen, setBoardFullscreen] = useState(() => {
     try {

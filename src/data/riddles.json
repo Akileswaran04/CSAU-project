@@ -4,167 +4,500 @@
     "difficulty": "easy",
     "category": "non-tech",
     "question": "What has keys but can't open locks?",
-    "answer": "A piano"
+    "options": ["A piano", "A map", "A keyboard", "A diary"],
+    "correctIndex": 0,
+    "answer": "A piano has black and white keys that play notes instead of opening locks."
   },
   {
     "id": "e2",
     "difficulty": "easy",
     "category": "non-tech",
     "question": "What gets wetter the more it dries?",
-    "answer": "A towel"
+    "options": ["A towel", "A sponge", "A mop", "A umbrella"],
+    "correctIndex": 0,
+    "answer": "A towel dries things but itself gets wet in the process."
   },
   {
     "id": "e3",
     "difficulty": "easy",
     "category": "non-tech",
     "question": "What can travel around the world while staying in a corner?",
-    "answer": "A stamp"
+    "options": ["A stamp", "A postcard", "A suitcase", "A plane ticket"],
+    "correctIndex": 0,
+    "answer": "A stamp is placed on an envelope in the corner and travels the world without moving itself."
   },
   {
     "id": "e4",
     "difficulty": "easy",
     "category": "non-tech",
     "question": "What has a head and a tail but no body?",
-    "answer": "A coin"
+    "options": ["A coin", "A snake", "A pencil", "A arrow"],
+    "correctIndex": 0,
+    "answer": "A coin has a 'head' side and a 'tail' side but no physical body."
   },
   {
     "id": "e5",
     "difficulty": "easy",
     "category": "tech",
     "question": "What does HTML stand for?",
-    "answer": "HyperText Markup Language"
+    "options": [
+      "HyperText Markup Language",
+      "HighTech Modern Language",
+      "Home Tool Markup Language",
+      "HyperTransfer Markup Language"
+    ],
+    "correctIndex": 0,
+    "answer": "HTML — HyperText Markup Language — is the standard language for creating web pages."
   },
   {
     "id": "e6",
     "difficulty": "easy",
     "category": "tech",
     "question": "What programming language is named after a snake?",
-    "answer": "Python"
+    "options": ["Python", "Java", "Cobra", "Swift"],
+    "correctIndex": 0,
+    "answer": "Python was named after the British comedy series 'Monty Python's Flying Circus', not the snake."
   },
   {
     "id": "e7",
     "difficulty": "easy",
     "category": "tech",
     "question": "What does the HTTP status code 404 mean?",
-    "answer": "Page not found"
+    "options": ["Page not found", "Server error", "Unauthorized", "Redirect"],
+    "correctIndex": 0,
+    "answer": "404 Not Found — the server cannot find the requested resource."
   },
   {
     "id": "e8",
     "difficulty": "easy",
     "category": "tech",
     "question": "What basic unit of information is represented by a 0 or 1?",
-    "answer": "A bit"
+    "options": ["A bit", "A byte", "A nibble", "A word"],
+    "correctIndex": 0,
+    "answer": "A bit (binary digit) is the smallest unit of data in computing, representing either 0 or 1."
+  },
+  {
+    "id": "e9",
+    "difficulty": "easy",
+    "category": "non-tech",
+    "question": "What building has the most stories?",
+    "options": ["A library", "A skyscraper", "A museum", "A school"],
+    "correctIndex": 0,
+    "answer": "A library — it's full of storybooks!"
+  },
+  {
+    "id": "e10",
+    "difficulty": "easy",
+    "category": "non-tech",
+    "question": "What month has 28 days?",
+    "options": ["All of them", "February", "January", "June"],
+    "correctIndex": 0,
+    "answer": "All 12 months have at least 28 days."
+  },
+  {
+    "id": "e11",
+    "difficulty": "easy",
+    "category": "non-tech",
+    "question": "What goes up but never comes down?",
+    "options": ["Your age", "A balloon", "A rocket", "Smoke"],
+    "correctIndex": 0,
+    "answer": "Your age — time keeps moving forward."
+  },
+  {
+    "id": "e12",
+    "difficulty": "easy",
+    "category": "tech",
+    "question": "What does 'www' stand for in a website address?",
+    "options": [
+      "World Wide Web",
+      "Web Wide World",
+      "World Web Wide",
+      "Wide World Web"
+    ],
+    "correctIndex": 0,
+    "answer": "WWW stands for World Wide Web, the system of interlinked hypertext documents."
+  },
+  {
+    "id": "e13",
+    "difficulty": "easy",
+    "category": "tech",
+    "question": "In CSS, what property changes the text color?",
+    "options": ["color", "text-color", "font-color", "foreground"],
+    "correctIndex": 0,
+    "answer": "The CSS 'color' property sets the foreground/text color of an element."
+  },
+  {
+    "id": "e14",
+    "difficulty": "easy",
+    "category": "tech",
+    "question": "What symbol is used for comments in Python?",
+    "options": ["#", "//", "/*", "--"],
+    "correctIndex": 0,
+    "answer": "Python uses the hash symbol (#) for single-line comments."
+  },
+  {
+    "id": "e15",
+    "difficulty": "easy",
+    "category": "non-tech",
+    "question": "What has an eye but cannot see?",
+    "options": ["A needle", "A storm", "A potato", "A camera"],
+    "correctIndex": 0,
+    "answer": "A needle has an 'eye' (the hole for thread) but cannot see."
+  },
+  {
+    "id": "e16",
+    "difficulty": "easy",
+    "category": "non-tech",
+    "question": "What gets bigger the more you take away from it?",
+    "options": ["A hole", "A pile", "A balloon", "A mystery"],
+    "correctIndex": 0,
+    "answer": "A hole gets larger as you remove more material from it."
+  },
+  {
+    "id": "e17",
+    "difficulty": "easy",
+    "category": "tech",
+    "question": "What does RAM stand for?",
+    "options": [
+      "Random Access Memory",
+      "Read Access Memory",
+      "Run Application Module",
+      "Rapid Algorithmic Memory"
+    ],
+    "correctIndex": 0,
+    "answer": "RAM (Random Access Memory) is a computer's short-term memory for active tasks."
   },
   {
     "id": "m1",
     "difficulty": "medium",
     "category": "non-tech",
     "question": "I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?",
-    "answer": "An echo"
+    "options": ["An echo", "A ghost", "A whisper", "A radio"],
+    "correctIndex": 0,
+    "answer": "An echo is the reflection of sound that repeats what was said."
   },
   {
     "id": "m2",
     "difficulty": "medium",
     "category": "non-tech",
     "question": "The person who makes it, sells it. The person who buys it never uses it. The person who uses it never knows they're using it. What is it?",
-    "answer": "A coffin"
+    "options": ["A coffin", "A gift", "A ticket", "A contract"],
+    "correctIndex": 0,
+    "answer": "A coffin is made by an undertaker, bought by family, but used by the deceased."
   },
   {
     "id": "m3",
     "difficulty": "medium",
     "category": "non-tech",
     "question": "I can be cracked, made, told, and played. What am I?",
-    "answer": "A joke"
+    "options": ["A joke", "A code", "A record", "A secret"],
+    "correctIndex": 0,
+    "answer": "A joke can be cracked (figured out), made up, told to others, and played (practical joke)."
   },
   {
     "id": "m4",
     "difficulty": "medium",
     "category": "non-tech",
     "question": "What comes once in a minute, twice in a moment, but never in a thousand years?",
-    "answer": "The letter M"
+    "options": ["The letter M", "The number 1", "A new moon", "An opportunity"],
+    "correctIndex": 0,
+    "answer": "The letter M appears once in 'minute', twice in 'moment', and not at all in 'thousand years'."
   },
   {
     "id": "m5",
     "difficulty": "medium",
     "category": "tech",
     "question": "What does API stand for in software development?",
-    "answer": "Application Programming Interface"
+    "options": [
+      "Application Programming Interface",
+      "Automated Program Integration",
+      "Application Processing Instruction",
+      "Advanced Platform Interface"
+    ],
+    "correctIndex": 0,
+    "answer": "API (Application Programming Interface) allows different software applications to communicate."
   },
   {
     "id": "m6",
     "difficulty": "medium",
     "category": "tech",
     "question": "In computing, what does GUI stand for?",
-    "answer": "Graphical User Interface"
+    "options": [
+      "Graphical User Interface",
+      "General User Input",
+      "Graphics Unit Interface",
+      "Guided User Interaction"
+    ],
+    "correctIndex": 0,
+    "answer": "GUI (Graphical User Interface) allows users to interact with computers using visual elements."
   },
   {
     "id": "m7",
     "difficulty": "medium",
     "category": "tech",
     "question": "What programming paradigm uses objects and classes to structure code?",
-    "answer": "Object-oriented programming"
+    "options": [
+      "Object-oriented programming",
+      "Functional programming",
+      "Procedural programming",
+      "Declarative programming"
+    ],
+    "correctIndex": 0,
+    "answer": "OOP organizes code into objects and classes that encapsulate data and behavior."
   },
   {
     "id": "m8",
     "difficulty": "medium",
     "category": "tech",
     "question": "What does SQL stand for in database management?",
-    "answer": "Structured Query Language"
+    "options": [
+      "Structured Query Language",
+      "Simple Query Language",
+      "System Query Logic",
+      "Standard Query Language"
+    ],
+    "correctIndex": 0,
+    "answer": "SQL (Structured Query Language) is used to manage and manipulate relational databases."
+  },
+  {
+    "id": "m9",
+    "difficulty": "medium",
+    "category": "non-tech",
+    "question": "What can you catch but not throw?",
+    "options": ["A cold", "A ball", "A fish", "A train"],
+    "correctIndex": 0,
+    "answer": "You can 'catch' a cold (illness), but you can't throw it to someone else."
+  },
+  {
+    "id": "m10",
+    "difficulty": "medium",
+    "category": "non-tech",
+    "question": "What has cities, but no houses? Forests, but no trees? Water, but no fish?",
+    "options": ["A map", "A globe", "A painting", "A dream"],
+    "correctIndex": 0,
+    "answer": "A map represents geographical features with symbols, not real buildings or trees."
+  },
+  {
+    "id": "m11",
+    "difficulty": "medium",
+    "category": "non-tech",
+    "question": "What breaks when you say its name?",
+    "options": ["Silence", "A promise", "A record", "Glass"],
+    "correctIndex": 0,
+    "answer": "Silence is 'broken' when someone speaks."
+  },
+  {
+    "id": "m12",
+    "difficulty": "medium",
+    "category": "tech",
+    "question": "What does JSON stand for?",
+    "options": [
+      "JavaScript Object Notation",
+      "Java Serialized Object Network",
+      "JavaScript Online Notation",
+      "Java Standard Object Notation"
+    ],
+    "correctIndex": 0,
+    "answer": "JSON (JavaScript Object Notation) is a lightweight data-interchange format."
+  },
+  {
+    "id": "m13",
+    "difficulty": "medium",
+    "category": "tech",
+    "question": "What version control system was created by Linus Torvalds?",
+    "options": ["Git", "SVN", "Mercurial", "CVS"],
+    "correctIndex": 0,
+    "answer": "Git was created by Linus Torvalds in 2005 for Linux kernel development."
+  },
+  {
+    "id": "m14",
+    "difficulty": "medium",
+    "category": "tech",
+    "question": "What does CRUD stand for in database operations?",
+    "options": [
+      "Create, Read, Update, Delete",
+      "Compile, Run, Update, Debug",
+      "Create, Replicate, Use, Destroy",
+      "Cache, Retrieve, Upload, Distribute"
+    ],
+    "correctIndex": 0,
+    "answer": "CRUD represents the four basic database operations: Create, Read, Update, Delete."
+  },
+  {
+    "id": "m15",
+    "difficulty": "medium",
+    "category": "non-tech",
+    "question": "What can you hold in your left hand but not in your right hand?",
+    "options": ["Your right elbow", "A mirror", "Your heart", "A shadow"],
+    "correctIndex": 0,
+    "answer": "You cannot reach your right elbow with your right hand — only with your left hand."
+  },
+  {
+    "id": "m16",
+    "difficulty": "medium",
+    "category": "non-tech",
+    "question": "The more you take, the more you leave behind. What am I?",
+    "options": ["Footsteps", "Memories", "Money", "Time"],
+    "correctIndex": 0,
+    "answer": "Footsteps — you leave one behind with every step you take."
   },
   {
     "id": "h1",
     "difficulty": "hard",
     "category": "non-tech",
     "question": "I am taken from a mine and shut up in a wooden case, from which I am never released. What am I?",
-    "answer": "Pencil lead"
+    "options": ["Pencil lead", "A diamond", "Coal", "Gold"],
+    "correctIndex": 0,
+    "answer": "Pencil 'lead' is actually graphite, mined from the ground, and encased in wood."
   },
   {
     "id": "h2",
     "difficulty": "hard",
     "category": "non-tech",
     "question": "What force and strength cannot get through, I with a gentle touch can do. And many in the street would stand, were I not a friend at hand. What am I?",
-    "answer": "A key"
+    "options": ["A key", "A whisper", "A smile", "A switch"],
+    "correctIndex": 0,
+    "answer": "A key opens doors with a gentle turn that brute force cannot break through."
   },
   {
     "id": "h3",
     "difficulty": "hard",
     "category": "non-tech",
     "question": "What can fill a room but takes up no space?",
-    "answer": "Light"
+    "options": ["Light", "Sound", "Air", "Heat"],
+    "correctIndex": 0,
+    "answer": "Light fills a room with illumination without occupying any physical space."
   },
   {
     "id": "h4",
     "difficulty": "hard",
     "category": "non-tech",
     "question": "What is it that you can keep after giving it to someone?",
-    "answer": "Your word"
+    "options": ["Your word", "A secret", "A gift", "An idea"],
+    "correctIndex": 0,
+    "answer": "You can give someone your word (promise) and still keep it yourself."
   },
   {
     "id": "h5",
     "difficulty": "hard",
     "category": "tech",
     "question": "What sorting algorithm repeatedly steps through a list and compares adjacent elements?",
-    "answer": "Bubble sort"
+    "options": ["Bubble sort", "Quick sort", "Merge sort", "Selection sort"],
+    "correctIndex": 0,
+    "answer": "Bubble sort repeatedly steps through a list, swapping adjacent elements if they are in the wrong order."
   },
   {
     "id": "h6",
     "difficulty": "hard",
     "category": "tech",
     "question": "In networking, what does SSH stand for?",
-    "answer": "Secure Shell"
+    "options": ["Secure Shell", "Secure Socket Hub", "System Shell Protocol", "Server Side Handler"],
+    "correctIndex": 0,
+    "answer": "SSH (Secure Shell) is a cryptographic network protocol for secure remote login."
   },
   {
     "id": "h7",
     "difficulty": "hard",
     "category": "tech",
     "question": "What data structure operates on a Last-In-First-Out (LIFO) principle?",
-    "answer": "A stack"
+    "options": ["A stack", "A queue", "A tree", "A linked list"],
+    "correctIndex": 0,
+    "answer": "A stack follows LIFO — the last element added is the first one removed."
   },
   {
     "id": "h8",
     "difficulty": "hard",
     "category": "tech",
     "question": "What does DNS stand for in internet infrastructure?",
-    "answer": "Domain Name System"
+    "options": [
+      "Domain Name System",
+      "Digital Network Service",
+      "Data Name Server",
+      "Domain Network Standard"
+    ],
+    "correctIndex": 0,
+    "answer": "DNS (Domain Name System) translates human-readable domain names to IP addresses."
+  },
+  {
+    "id": "h9",
+    "difficulty": "hard",
+    "category": "non-tech",
+    "question": "What invention lets you look right through a wall?",
+    "options": ["A window", "A camera", "X-ray", "A mirror"],
+    "correctIndex": 0,
+    "answer": "A window is a transparent panel set into a wall that allows you to see through it."
+  },
+  {
+    "id": "h10",
+    "difficulty": "hard",
+    "category": "non-tech",
+    "question": "What has many teeth but can't bite?",
+    "options": ["A comb", "A zipper", "A saw", "A gear"],
+    "correctIndex": 0,
+    "answer": "A comb has many 'teeth' for detangling hair but cannot bite."
+  },
+  {
+    "id": "h11",
+    "difficulty": "hard",
+    "category": "non-tech",
+    "question": "What can run but never walks, has a mouth but never talks, has a head but never weeps, has a bed but never sleeps?",
+    "options": ["A river", "A clock", "A horse", "A train"],
+    "correctIndex": 0,
+    "answer": "A river runs, has a mouth (where it empties), a head (its source), and a bed (the riverbed)."
+  },
+  {
+    "id": "h12",
+    "difficulty": "hard",
+    "category": "tech",
+    "question": "What programming concept describes a function that calls itself?",
+    "options": ["Recursion", "Iteration", "Inheritance", "Abstraction"],
+    "correctIndex": 0,
+    "answer": "Recursion is when a function calls itself to solve smaller instances of the same problem."
+  },
+  {
+    "id": "h13",
+    "difficulty": "hard",
+    "category": "tech",
+    "question": "In cybersecurity, what does XSS stand for?",
+    "options": [
+      "Cross-Site Scripting",
+      "XML Secure Socket",
+      "Xtra Secure System",
+      "Cross-System Security"
+    ],
+    "correctIndex": 0,
+    "answer": "XSS (Cross-Site Scripting) is a security vulnerability that allows attackers to inject client-side scripts."
+  },
+  {
+    "id": "h14",
+    "difficulty": "hard",
+    "category": "tech",
+    "question": "What computer architecture is based on the concept of storing both data and instructions in the same memory?",
+    "options": [
+      "Von Neumann architecture",
+      "Harvard architecture",
+      "RISC architecture",
+      "CISC architecture"
+    ],
+    "correctIndex": 0,
+    "answer": "The Von Neumann architecture uses a single shared memory for both data and instructions."
+  },
+  {
+    "id": "h15",
+    "difficulty": "hard",
+    "category": "non-tech",
+    "question": "I am not alive, but I grow; I don't have lungs, but I need air. What am I?",
+    "options": ["Fire", "A plant", "A candle", "Smoke"],
+    "correctIndex": 0,
+    "answer": "Fire grows when fed fuel and oxygen, but it is not alive."
+  },
+  {
+    "id": "h16",
+    "difficulty": "hard",
+    "category": "non-tech",
+    "question": "What is so fragile that saying its name breaks it?",
+    "options": ["Silence", "A secret", "Glass", "A bubble"],
+    "correctIndex": 0,
+    "answer": "Silence is broken the moment you speak, even just to say the word 'silence'."
   }
 ]

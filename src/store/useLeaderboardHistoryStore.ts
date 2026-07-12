@@ -3,6 +3,7 @@ import {
   fetchRecentMatches,
   fetchAllTimeStandings,
   type LocalMatch,
+  type GameMode,
 } from "../lib/leaderboardHistoryService";
 
 export interface AllTimeEntry {
@@ -19,8 +20,10 @@ interface LeaderboardHistoryState {
   allTimeStandings: AllTimeEntry[];
   isLoading: boolean;
   error: string | null;
+  historyMode: GameMode;
 
-  loadHistory: () => Promise<void>;
+  loadHistory: (mode?: GameMode) => Promise<void>;
+  setHistoryMode: (mode: GameMode) => void;
 }
 
 export const useLeaderboardHistoryStore = create<LeaderboardHistoryState>()(
@@ -29,13 +32,15 @@ export const useLeaderboardHistoryStore = create<LeaderboardHistoryState>()(
     allTimeStandings: [],
     isLoading: false,
     error: null,
+    historyMode: "offline",
 
-    loadHistory: async () => {
+    loadHistory: async (mode?: GameMode) => {
       set({ isLoading: true, error: null });
       try {
+        const actualMode = mode || useLeaderboardHistoryStore.getState().historyMode;
         const [recentMatches, allTimeStandings] = await Promise.all([
-          fetchRecentMatches(20),
-          Promise.resolve(fetchAllTimeStandings()),
+          fetchRecentMatches(20, actualMode),
+          Promise.resolve(fetchAllTimeStandings(actualMode)),
         ]);
         set({ recentMatches, allTimeStandings, isLoading: false });
       } catch (err) {
@@ -44,6 +49,12 @@ export const useLeaderboardHistoryStore = create<LeaderboardHistoryState>()(
           isLoading: false,
         });
       }
+    },
+
+    setHistoryMode: (mode: GameMode) => {
+      set({ historyMode: mode });
+      // Reload data with new mode
+      useLeaderboardHistoryStore.getState().loadHistory(mode);
     },
   })
 );

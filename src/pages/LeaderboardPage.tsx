@@ -4,7 +4,8 @@ import { LeaderboardFullPage } from "../components/leaderboard/LeaderboardTable"
 import { LeaderboardHistoryPanel } from "../components/leaderboard/LeaderboardHistoryPanel";
 import { PanelShell } from "../components/shared/PanelShell";
 import { useGameStore } from "../store/useGameStore";
-import { Trophy, Clock } from "lucide-react";
+import { useLeaderboardHistoryStore } from "../store/useLeaderboardHistoryStore";
+import { Trophy, Wifi, WifiOff } from "lucide-react";
 
 function LoadingSkeleton() {
   return (
@@ -68,17 +69,29 @@ function EmptyState() {
   );
 }
 
-type Tab = "current" | "allTime";
+type Tab = "current" | "offline" | "online";
 
 export function LeaderboardPage() {
   const teams = useGameStore((s) => s.teams);
   const gamePhase = useGameStore((s) => s.gamePhase);
+  const setHistoryMode = useLeaderboardHistoryStore((s) => s.setHistoryMode);
   const [activeTab, setActiveTab] = useState<Tab>("current");
 
   const tabs: { id: Tab; label: string; icon: typeof Trophy }[] = [
     { id: "current", label: "This Game", icon: Trophy },
-    { id: "allTime", label: "All-Time", icon: Clock },
+    { id: "offline", label: "Offline", icon: WifiOff },
+    { id: "online", label: "Online", icon: Wifi },
   ];
+
+  // Sync history mode with active tab
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    if (tab === "offline") {
+      setHistoryMode("offline");
+    } else if (tab === "online") {
+      setHistoryMode("online");
+    }
+  };
 
   // Show loading skeleton while store is hydrating
   if (teams.length === 0 && gamePhase === "idle") {
@@ -115,7 +128,7 @@ export function LeaderboardPage() {
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={() => setActiveTab(id)}
+              onClick={() => handleTabChange(id)}
               className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-display font-medium transition-all duration-200 ${
                 activeTab === id ? "text-white" : "text-white/40 hover:text-white/70"
               }`}

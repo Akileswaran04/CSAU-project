@@ -8,8 +8,6 @@ import {
   onGameState,
   onPlayersChange,
   syncGameState,
-  getSocketId,
-  isConnected,
   type PlayerInfo,
   type RoomResult,
 } from "../lib/socketClient";
@@ -46,36 +44,25 @@ export function useMultiplayer() {
       if (!isHostRef.current && serverState) {
         syncingRef.current = true;
 
-        const store = useGameStore.getState();
+        // Full state replacement — server teams have authoritative IDs from host's store
+        // This correctly handles team additions AND removals (unlike update-only approach)
         if (serverState.teams) {
-          // Apply server teams
-          store.teams.forEach((localTeam) => {
-            const serverTeam = serverState.teams.find(
-              (t: any) => t.id === localTeam.id
-            );
-            if (serverTeam) {
-              store.updateTeam(localTeam.id, {
-                position: serverTeam.position,
-                score: serverTeam.score,
-              });
-            }
-          });
+          useGameStore.setState({ teams: serverState.teams });
         }
-
         if (serverState.gamePhase) {
-          store.setGamePhase(serverState.gamePhase);
+          useGameStore.setState({ gamePhase: serverState.gamePhase });
         }
         if (serverState.winner !== undefined) {
-          store.setWinner(serverState.winner);
+          useGameStore.setState({ winner: serverState.winner });
         }
         if (serverState.diceResult !== undefined) {
-          store.setDiceResult(serverState.diceResult);
+          useGameStore.setState({ diceResult: serverState.diceResult });
         }
         if (serverState.isRolling !== undefined) {
-          store.setIsRolling(serverState.isRolling);
+          useGameStore.setState({ isRolling: serverState.isRolling });
         }
         if (serverState.currentTeamIndex !== undefined) {
-          store.setCurrentTeamIndex(serverState.currentTeamIndex);
+          useGameStore.setState({ currentTeamIndex: serverState.currentTeamIndex });
         }
 
         syncingRef.current = false;

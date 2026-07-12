@@ -10,6 +10,8 @@ export interface Riddle {
   difficulty: Difficulty;
   category: RiddleCategory;
   question: string;
+  options: string[];
+  correctIndex: number;
   answer: string;
 }
 
@@ -76,13 +78,18 @@ export const useRiddleStore = create<RiddleState>()(
         if (pool.length === 0) return null;
 
         const shuffled = shuffleArray(pool);
-        const riddle = shuffled[0];
+        const riddle = { ...shuffled[0] }; // shallow clone so we can mutate
 
-        set((state) => ({
+        // Shuffle options at runtime so the correct answer isn't always option A
+        const correctAnswer = riddle.options[riddle.correctIndex];
+        riddle.options = shuffleArray(riddle.options);
+        riddle.correctIndex = riddle.options.indexOf(correctAnswer);
+
+        set({
           usedRiddleIds: [...state.usedRiddleIds, riddle.id],
           currentRiddle: riddle,
           currentDifficulty: difficulty,
-        }));
+        });
 
         return riddle;
       },

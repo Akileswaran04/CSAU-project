@@ -96,6 +96,16 @@ export function joinRoom(
   });
 }
 
+/** Spectate a room (read-only — joins without taking a player slot) */
+export function spectateRoom(roomId: string): Promise<RoomResult> {
+  return new Promise((resolve) => {
+    const s = socket || connect();
+    s.emit("room:spectate", { roomId }, (res: RoomResult) => {
+      resolve(res);
+    });
+  });
+}
+
 /** Sync full game state to server (used by host after state changes) */
 export function syncGameState(state: any): void {
   if (!socket?.connected) return;

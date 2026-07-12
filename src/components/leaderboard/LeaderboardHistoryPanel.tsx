@@ -231,7 +231,7 @@ function ErrorState() {
       <AlertCircle size={24} className="mx-auto text-danger mb-2" />
       <p className="text-white/40 text-sm mb-3">{error}</p>
       <button
-        onClick={loadHistory}
+        onClick={() => loadHistory()}
         className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
         style={{
           color: "var(--color-accent-primary)",
@@ -272,7 +272,7 @@ export function LeaderboardHistoryPanel() {
             title="Recent Matches"
             action={
               <button
-                onClick={loadHistory}
+                onClick={() => loadHistory()}
                 className="flex items-center gap-1.5 text-xs font-medium transition-colors"
                 style={{ color: "var(--color-fg-muted)" }}
                 disabled={isLoading}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
@@ -11,83 +11,23 @@ const BG_IMAGE_2 =
 /* ─── Constants ─── */
 const SPOTLIGHT_R = 260;
 
-/* ─── Cursor-following spotlight reveal layer ─── */
-function RevealLayer({
-  image,
-  cursorX,
-  cursorY,
-}: {
-  image: string;
-  cursorX: number;
-  cursorY: number;
-}) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const divRef = useRef<HTMLDivElement>(null);
-  const sizeRef = useRef({ w: window.innerWidth, h: window.innerHeight });
-
-  // Update canvas + mask on every render
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const div = divRef.current;
-    if (!canvas || !div) return;
-
-    const { w, h } = sizeRef.current;
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, w, h);
-
-    const gradient = ctx.createRadialGradient(
-      cursorX,
-      cursorY,
-      0,
-      cursorX,
-      cursorY,
-      SPOTLIGHT_R
-    );
-    gradient.addColorStop(0, "rgba(255,255,255,1)");
-    gradient.addColorStop(0.4, "rgba(255,255,255,1)");
-    gradient.addColorStop(0.6, "rgba(255,255,255,0.75)");
-    gradient.addColorStop(0.75, "rgba(255,255,255,0.4)");
-    gradient.addColorStop(0.88, "rgba(255,255,255,0.12)");
-    gradient.addColorStop(1, "rgba(255,255,255,0)");
-
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(cursorX, cursorY, SPOTLIGHT_R, 0, Math.PI * 2);
-    ctx.fill();
-
-    const dataUrl = canvas.toDataURL();
-    div.style.maskImage = `url(${dataUrl})`;
-    div.style.webkitMaskImage = `url(${dataUrl})`;
-    div.style.maskSize = "100% 100%";
-    div.style.webkitMaskSize = "100% 100%";
-  }, [cursorX, cursorY]);
-
-  // Resize handler
-  useEffect(() => {
-    const onResize = () => {
-      sizeRef.current = { w: window.innerWidth, h: window.innerHeight };
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
+/* ─── Cursor-following spotlight reveal — CSS radial gradient mask (GPU-accelerated) ─── */
+function RevealLayer({ image }: { image: string }) {
   return (
-    <>
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 pointer-events-none"
-        style={{ display: "none" }}
-      />
+    <div className="absolute inset-0 z-30 pointer-events-none">
       <div
-        ref={divRef}
-        className="absolute inset-0 bg-center bg-cover bg-no-repeat z-30 pointer-events-none"
-        style={{ backgroundImage: `url(${image})` }}
+        className="absolute inset-0 bg-center bg-cover bg-no-repeat"
+        style={{
+          backgroundImage: `url(${image})`,
+          maskImage: "var(--spotlight-mask, radial-gradient(circle at -999px -999px, transparent 0%))",
+          WebkitMaskImage: "var(--spotlight-mask, radial-gradient(circle at -999px -999px, transparent 0%))",
+          maskSize: "100% 100%",
+          WebkitMaskSize: "100% 100%",
+          maskRepeat: "no-repeat",
+          WebkitMaskRepeat: "no-repeat",
+        }}
       />
-    </>
+    </div>
   );
 }
 
@@ -96,11 +36,10 @@ export function HeroPage() {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // ─── Spotlight cursor tracking with smooth lerp ───
+  // ─── Spotlight cursor tracking with smooth lerp (writes to CSS var — no React re-renders!) ───
   const mouseRef = useRef({ x: -999, y: -999 });
   const smoothRef = useRef({ x: -999, y: -999 });
   const rafRef = useRef<number>(0);
-  const [cursorPos, setCursorPos] = useState({ x: -999, y: -999 });
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     mouseRef.current = { x: e.clientX, y: e.clientY };
@@ -112,7 +51,26 @@ export function HeroPage() {
     const animate = () => {
       smoothRef.current.x += (mouseRef.current.x - smoothRef.current.x) * 0.1;
       smoothRef.current.y += (mouseRef.current.y - smoothRef.current.y) * 0.1;
-      setCursorPos({ x: smoothRef.current.x, y: smoothRef.current.y });
+
+      const sx = Math.round(smoothRef.current.x);
+      const sy = Math.round(smoothRef.current.y);
+
+      // Build a radial gradient for the mask — white = visible, transparent = hidden
+      // Writing directly to a CSS custom property avoids React re-renders entirely
+      const stops = [
+        "rgba(255,255,255,1) 0%",
+        "rgba(255,255,255,1) 40%",
+        "rgba(255,255,255,0.75) 60%",
+        "rgba(255,255,255,0.4) 75%",
+        "rgba(255,255,255,0.12) 88%",
+        "rgba(255,255,255,0) 100%",
+      ].join(", ");
+
+      document.documentElement.style.setProperty(
+        "--spotlight-mask",
+        `radial-gradient(${SPOTLIGHT_R}px at ${sx}px ${sy}px, ${stops})`
+      );
+
       rafRef.current = requestAnimationFrame(animate);
     };
     rafRef.current = requestAnimationFrame(animate);
@@ -120,6 +78,7 @@ export function HeroPage() {
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(rafRef.current);
+      document.documentElement.style.removeProperty("--spotlight-mask");
     };
   }, [handleMouseMove]);
 
@@ -135,32 +94,43 @@ export function HeroPage() {
           <svg width="26" height="26" viewBox="0 0 256 256" fill="#ffffff">
             <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z" />
           </svg>
-          <span className="text-white text-2xl font-playfair italic">Lithos</span>
+          <span className="text-white text-2xl font-playfair italic">Riddle Rush</span>
         </div>
 
         {/* Center: Nav Pill (desktop) */}
         <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-md border border-white/30 rounded-full px-2 py-2 items-center gap-1">
-          <button className="text-white px-4 py-1.5 rounded-full text-sm font-medium bg-white/20">
-            Course
+          <button
+            onClick={() => navigate("/setup")}
+            className="text-white px-4 py-1.5 rounded-full text-sm font-medium bg-white/20"
+          >
+            Setup
           </button>
-          <button className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium">
-            Field Guides
+          <button
+            onClick={() => navigate("/board")}
+            className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium"
+          >
+            Board
           </button>
-          <button className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium">
-            Geology
+          <button
+            onClick={() => navigate("/spectate")}
+            className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium"
+          >
+            Spectate
           </button>
-          <button className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium">
-            Plans
-          </button>
-          <button className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium">
-            Live Tour
+          <button
+            onClick={() => navigate("/leaderboard")}
+            className="text-white/80 hover:bg-white/20 hover:text-white transition-colors px-4 py-1.5 rounded-full text-sm font-medium"
+          >
+            Leaderboard
           </button>
         </div>
 
-        {/* Right: Sign Up (desktop) */}
-        <button className="hidden md:block bg-white text-gray-900 text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-gray-100 transition-colors"
-          onClick={() => navigate("/setup")}>
-          Sign Up
+        {/* Right: Play Now (desktop) */}
+        <button
+          className="hidden md:block bg-white text-gray-900 text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-gray-100 transition-colors"
+          onClick={() => navigate("/setup")}
+        >
+          Play Now
         </button>
 
         {/* Mobile hamburger */}
@@ -178,14 +148,14 @@ export function HeroPage() {
         className="relative w-full overflow-hidden h-screen bg-black"
         style={{ height: "100dvh" }}
       >
-        {/* Layer 1: Base image (z-10) */}
+        {/* Layer 1: Base image (z-10) with Ken Burns zoom-out */}
         <div
           className="absolute inset-0 bg-center bg-cover bg-no-repeat hero-zoom z-10"
           style={{ backgroundImage: `url(${BG_IMAGE_1})` }}
         />
 
-        {/* Layer 2: Spotlight reveal (z-30) */}
-        <RevealLayer image={BG_IMAGE_2} cursorX={cursorPos.x} cursorY={cursorPos.y} />
+        {/* Layer 2: Spotlight reveal (z-30) — CSS mask, GPU-accelerated, no canvas! */}
+        <RevealLayer image={BG_IMAGE_2} />
 
         {/* Layer 3: Heading (z-50) */}
         <div className="absolute top-[14%] left-0 right-0 flex flex-col items-center text-center px-5 pointer-events-none z-50">
@@ -194,40 +164,42 @@ export function HeroPage() {
               className="block font-playfair italic font-normal text-5xl sm:text-7xl md:text-8xl hero-anim hero-reveal"
               style={{ letterSpacing: "-0.05em", animationDelay: "0.25s" }}
             >
-              Layers hold
+              Outwit the
             </span>
             <span
               className="block font-normal text-5xl sm:text-7xl md:text-8xl -mt-1 hero-anim hero-reveal"
               style={{ letterSpacing: "-0.08em", animationDelay: "0.42s" }}
             >
-              tales of time
+              Board Rush
             </span>
           </h1>
         </div>
 
-        {/* Layer 4: Bottom-left paragraph (z-50) */}
-        <div className="hidden sm:block absolute bottom-14 left-10 md:left-14 max-w-[260px] z-50 hero-anim hero-fade"
-          style={{ animationDelay: "0.7s" }}>
+        {/* Layer 4: Bottom-left description (z-50) */}
+        <div
+          className="hidden sm:block absolute bottom-14 left-10 md:left-14 max-w-[260px] z-50 hero-anim hero-fade"
+          style={{ animationDelay: "0.7s" }}
+        >
           <p className="text-sm text-white/80 leading-relaxed">
-            Every layer of sediment records a chapter of our planet, from ancient
-            seabeds to drifting ash, layered across millions of years beneath us.
+            Roll the dice, solve riddles, and race your team across the board.
+            Every cell holds a challenge — every turn is a gamble.
           </p>
         </div>
 
-        {/* Layer 5: Bottom-right block (z-50) */}
+        {/* Layer 5: Bottom-right CTA (z-50) */}
         <div
           className="absolute bottom-10 sm:bottom-24 left-5 right-5 sm:left-auto sm:right-10 md:right-14 max-w-full sm:max-w-[260px] flex flex-col items-start gap-4 sm:gap-5 z-50 hero-anim hero-fade"
           style={{ animationDelay: "0.85s" }}
         >
           <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
-            Our interactive maps let you peel back the crust to trace how stones,
-            fossils, and deep time combine to shape the ground beneath your feet.
+            Challenge your friends in a fast-paced trivia race. Solve riddles,
+            climb the leaderboard, and claim the crown.
           </p>
           <button
             onClick={() => navigate("/setup")}
             className="bg-[#e8702a] hover:bg-[#d2611f] text-white text-sm font-medium px-7 py-3 rounded-full transition-all hover:scale-[1.03] active:scale-95 hover:shadow-lg hover:shadow-[#e8702a]/30"
           >
-            Start Digging
+            Start Game
           </button>
         </div>
       </section>
@@ -235,17 +207,23 @@ export function HeroPage() {
       {/* ─── Mobile menu overlay ─── */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-lg flex flex-col items-center justify-center gap-6 md:hidden">
-          {["Course", "Field Guides", "Geology", "Plans", "Live Tour"].map(
-            (item) => (
-              <button
-                key={item}
-                className="text-white text-2xl font-medium hover:text-white/70 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item}
-              </button>
-            )
-          )}
+          {[
+            { label: "Setup", path: "/setup" },
+            { label: "Board", path: "/board" },
+            { label: "Spectate", path: "/spectate" },
+            { label: "Leaderboard", path: "/leaderboard" },
+          ].map(({ label, path }) => (
+            <button
+              key={label}
+              className="text-white text-2xl font-medium hover:text-white/70 transition-colors"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                navigate(path);
+              }}
+            >
+              {label}
+            </button>
+          ))}
           <button
             className="mt-4 bg-white text-gray-900 text-sm font-semibold px-8 py-3 rounded-full hover:bg-gray-100 transition-colors"
             onClick={() => {
@@ -253,7 +231,7 @@ export function HeroPage() {
               navigate("/setup");
             }}
           >
-            Sign Up
+            Play Now
           </button>
         </div>
       )}

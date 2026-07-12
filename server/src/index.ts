@@ -29,6 +29,7 @@ interface GameState {
 interface GameRoom {
   id: string;
   players: Map<string, { id: string; name: string; isHost: boolean }>;
+  spectators: Set<string>;
   state: GameState;
 }
 
@@ -44,6 +45,7 @@ io.on("connection", (socket) => {
     const room: GameRoom = {
       id: roomId,
       players: new Map(),
+      spectators: new Set(),
       state: {
         teams: [],
         gamePhase: "idle",
@@ -120,6 +122,26 @@ io.on("connection", (socket) => {
     socket.to(room.id).emit("game:state", fullState);
   });
 
+  // ─── Spectate a room (read-only, no player slot) ───
+  socket.on("room:spectate", ({ roomId }, callback) => {
+    const room = rooms.get(roomId?.toUpperCase());
+    if (!room) {
+      callback({ ok: false, error: "Room not found" });
+      return;
+    }
+    room.spectators.add(socket.id);
+    socket.join(roomId);
+    console.log(`[room:spectate] ${socket.id} watching ${roomId}`);
+
+    callback({
+      ok: true,
+      roomId,
+      gameState: room.state,
+      players: Array.from(room.players.values()),
+    });
+    socket.emit("game:state", room.state);
+  });
+
   // ─── Request current game state ───
   socket.on("game:requestState", () => {
     const room = findRoom(socket);
@@ -131,12 +153,22 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`[disconnect] ${socket.id}`);
     for (const [roomId, room] of rooms.entries()) {
+      // Remove from players
       if (room.players.has(socket.id)) {
-        const player = room.players.get(socket.id)!;
         room.players.delete(socket.id);
         io.to(roomId).emit("room:players", Array.from(room.players.values()));
 
-        if (room.players.size === 0) {
+        if (room.players.size === 0 && room.spectators.size === 0) {
+          rooms.delete(roomId);
+          console.log(`[room:delete] ${roomId} (empty)`);
+        }
+        break;
+      }
+      // Remove from spectators
+      if (room.spectators.has(socket.id)) {
+        room.spectators.delete(socket.id);
+        console.log(`[spectator:leave] ${socket.id} left ${roomId}`);
+        if (room.players.size === 0 && room.spectators.size === 0) {
           rooms.delete(roomId);
           console.log(`[room:delete] ${roomId} (empty)`);
         }
@@ -144,6 +176,7 @@ io.on("connection", (socket) => {
       }
     }
   });
+
 });
 
 function findRoom(socket: any): GameRoom | undefined {
