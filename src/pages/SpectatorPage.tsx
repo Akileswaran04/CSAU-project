@@ -279,7 +279,7 @@ export function SpectatorPage() {
   const handleSpectate = useCallback(
     async (code: string) => {
       setIsSpectating(true);
-      await spectator.spectate(code);
+      await spectator.spectateRoom(code);
       setIsSpectating(false);
     },
     [spectator]

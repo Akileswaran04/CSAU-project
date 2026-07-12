@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { useGameStore, type Team, type GamePhase } from "../store/useGameStore";
-import { useRiddleStore, type Riddle, type Difficulty } from "../store/useRiddleStore";
+import { useRiddleStore, type Riddle } from "../store/useRiddleStore";
+import type { Difficulty } from "../lib/scoring";
 import { useRoomStore } from "../store/useRoomStore";
 import {
   createRoom,

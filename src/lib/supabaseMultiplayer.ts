@@ -11,8 +11,6 @@
  */
 import { supabase, isSupabaseConfigured } from "./supabaseClient";
 import { RealtimeChannel } from "@supabase/supabase-js";
-import type { GameState } from "../store/useGameStore";
-
 /* ─── Types ─── */
 
 export interface RoomPlayer {
@@ -48,7 +46,6 @@ export type ConnectionListener = (connected: boolean) => void;
 let playerChannel: RealtimeChannel | null = null;
 let spectatorChannel: RealtimeChannel | null = null;
 let currentUserId: string | null = null;
-let currentPlayerName: string | null = null;
 
 const listeners = {
   state: new Set<StateListener>(),
@@ -185,7 +182,6 @@ export async function createRoom(playerName: string): Promise<{
       return { ok: false, error: `Failed to register player: ${playerError.message}` };
     }
 
-    currentPlayerName = playerName;
     joinRoomChannel(roomCode, playerName, userId, true);
 
     return { ok: true, roomCode };
@@ -224,7 +220,6 @@ export async function joinRoom(roomCode: string, playerName: string): Promise<{
       if (playerError) return { ok: false, error: `Failed to join: ${playerError.message}` };
     }
 
-    currentPlayerName = playerName;
     joinRoomChannel(normalizedCode, playerName, userId, false);
 
     return { ok: true, roomCode: normalizedCode, gameState: room.game_state };
@@ -272,7 +267,6 @@ export async function reconnectToRoom(roomCode: string, playerName: string): Pro
       if (playerError) return { ok: false, error: `Failed to rejoin: ${playerError.message}` };
     }
 
-    currentPlayerName = playerName;
     joinRoomChannel(normalizedCode, playerName, userId, isHost);
 
     return { ok: true, gameState: room.game_state, isHost };
@@ -361,7 +355,6 @@ export async function leaveRoom(): Promise<void> {
     playerChannel = null;
   }
   disconnectSpectator();
-  currentPlayerName = null;
   listeners.state.clear();
   listeners.presence.clear();
   listeners.error.clear();
@@ -495,7 +488,7 @@ export function isConnected(): boolean {
 }
 
 export function isSpectating(): boolean {
-  return spectatorChannel !== null && (spectatorChannel.state === "joined" || spectatorChannel.state === "subscribed");
+  return spectatorChannel !== null && spectatorChannel.state === "joined";
 }
 
 export function getCurrentRoomCode(): string | null {

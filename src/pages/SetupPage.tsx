@@ -276,7 +276,7 @@ function OnlineLobby({ onCreateRoom, onJoinRoom, error }: OnlineLobbyProps) {
     if (!playerName.trim()) { toast.error("Enter a player name first"); return; }
     if (!roomCodeInput.trim()) { toast.error("Enter a room code"); return; }
     setJoining(true);
-    const ok = await onJoinRoom(roomCodeInput.trim().toUpperCase(), playerName.trim());
+    await onJoinRoom(roomCodeInput.trim().toUpperCase(), playerName.trim());
     setJoining(false);
   };
 
@@ -427,7 +427,7 @@ function ReconnectBanner({
    MAIN: SetupPage
    ═══════════════════════════════════════════════════════════════════════════ */
 export function SetupPage() {
-  const { gamePhase, gameMode, setGameMode, teams, addTeam, updateTeam, removeTeam } = useGameStore();
+  const { gamePhase, gameMode, setGameMode, teams, addTeam, removeTeam } = useGameStore();
   const isLocked = gamePhase !== "idle";
   const navigate = useNavigate();
   const room = useRealtimeRoom();
@@ -436,7 +436,6 @@ export function SetupPage() {
   const [dismissedReconnect, setDismissed] = useState(false);
 
   // Team management for host (online mode)
-  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
 
   // ─── Auto-navigate non-host players to board when game starts ───
@@ -587,7 +586,7 @@ export function SetupPage() {
                     </p>
                   ) : (
                     <div className="space-y-2 mb-4">
-                      {teams.map((team, i) => (
+                      {teams.map((team) => (
                         <div key={team.id} className="flex items-center gap-2 p-2 rounded-lg"
                           style={{ background: "var(--color-bg-elevated)" }}>
                           <div className="w-6 h-6 rounded flex items-center justify-center text-[10px]"
