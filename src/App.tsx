@@ -11,6 +11,7 @@ import { SpectatorPage } from "./pages/SpectatorPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { BrandLogo } from "./components/shared/BrandLogo";
 import { SplashScreen } from "./components/shared/SplashScreen";
+import { InstallPrompt } from "./components/shared/InstallPrompt";
 import { useSettingsStore } from "./store/useSettingsStore";
 
 const navItems = [
@@ -141,6 +142,7 @@ export default function App() {
               },
             }}
           />
+          <InstallPrompt />
           <Routes>
             <Route path="/" element={<HeroPage />} />
             <Route path="/*" element={<AppLayout />} />
