@@ -16,7 +16,7 @@ import { useSettingsStore } from "../store/useSettingsStore";
 import { boardCells } from "../data/boardConfig";
 import { saveMatchResult } from "../lib/leaderboardHistoryService";
 import { useLeaderboardHistoryStore } from "../store/useLeaderboardHistoryStore";
-import { Trophy, Crown, Medal, Award, Download, RotateCcw, Share2, Minimize2, ChevronUp, PanelRightClose, PanelRightOpen, Eye, Wifi, ArrowLeft, RefreshCw } from "lucide-react";
+import { Trophy, Crown, Medal, Award, Download, RotateCcw, Share2, Minimize2, ChevronUp, PanelRightClose, PanelRightOpen, Eye, Wifi, ArrowLeft, RefreshCw, Users } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useRealtimeRoom, getSavedRoom } from "../hooks/useRealtimeRoom";
 import confetti from "canvas-confetti";
@@ -237,20 +237,48 @@ function DisconnectedBanner() {
   const room = useRoomStore();
   const gameMode = useGameStore((s) => s.gameMode);
   const hookRoom = useRealtimeRoom();
+  const navigate = useNavigate();
+  const [retryCountdown, setRetryCountdown] = useState(10);
   const [isRetrying, setIsRetrying] = useState(false);
+
+  // ─── Ticker: decrement countdown every second ───
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRetryCountdown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // ─── Action: fire reconnect when countdown hits 0 ───
+  const reconnectInProgress = useRef(false);
+  useEffect(() => {
+    if (retryCountdown > 0) return;
+    if (reconnectInProgress.current) return;
+    reconnectInProgress.current = true;
+    hookRoom.reconnect().then((ok) => {
+      reconnectInProgress.current = false;
+      if (ok) toast.success("Reconnected successfully");
+    });
+    setRetryCountdown(10);
+  }, [retryCountdown, hookRoom.reconnect]);
 
   if (!room.connectionDropped || gameMode !== "online") return null;
 
   const handleReconnect = async () => {
     setIsRetrying(true);
+    setRetryCountdown(10);
     const ok = await hookRoom.reconnect();
     setIsRetrying(false);
     if (ok) {
       toast.success("Reconnected successfully");
     } else {
-      // Read fresh error from store (not stale closure)
       toast.error(useRoomStore.getState().error || "Could not reconnect");
     }
+  };
+
+  const handleLeave = async () => {
+    await hookRoom.leaveRoom();
+    navigate("/setup");
   };
 
   return (
@@ -275,23 +303,39 @@ function DisconnectedBanner() {
         />
         <span className="font-medium">Network connection lost</span>
         <span className="text-white/40 text-xs hidden sm:inline">
-          Trying to reconnect...
+          Retrying in {retryCountdown}s
         </span>
-        <button
-          onClick={handleReconnect}
-          disabled={isRetrying}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ml-2"
-          style={{
-            background: "rgba(255, 255, 255, 0.1)",
-            border: "1px solid rgba(255, 255, 255, 0.15)",
-            color: "#FF6B6B",
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)"}
-          onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)"}
-        >
-          <RefreshCw size={14} className={isRetrying ? "animate-spin" : ""} />
-          Reconnect Now
-        </button>
+
+        <div className="flex items-center gap-1.5 ml-2">
+          <button
+            onClick={handleReconnect}
+            disabled={isRetrying}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+            style={{
+              background: "rgba(255, 255, 255, 0.1)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              color: "#FF6B6B",
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)"}
+            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)"}
+          >
+            <RefreshCw size={14} className={isRetrying ? "animate-spin" : ""} />
+            Reconnect Now
+          </button>
+
+          <span className="text-white/20 mx-1">|</span>
+
+          <button
+            onClick={handleLeave}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs transition-all"
+            style={{ color: "rgba(255, 255, 255, 0.4)" }}
+            onMouseEnter={(e) => e.currentTarget.style.color = "rgba(255, 255, 255, 0.7)"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "rgba(255, 255, 255, 0.4)"}
+          >
+            <ArrowLeft size={14} />
+            Leave Game
+          </button>
+        </div>
       </div>
     </motion.div>
   );
@@ -486,22 +530,42 @@ export function BoardPage() {
         style={{ background: "var(--color-bg-header)" }}>
         <div className="p-3 px-5 flex items-center gap-3">
           <div className="flex-1"><GameControlBar /></div>
-          {/* Room code badge for online host */}
+          {/* Room info badges for online host */}
           {gameMode === "online" && room.isConnected && room.roomCode && (
-            <div
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full shrink-0"
-              style={{
-                background: "var(--color-accent-primary-muted)",
-                border: "1px solid var(--color-accent-primary-muted)",
-              }}
-            >
-              <Wifi size={12} style={{ color: "var(--color-accent-primary)" }} />
-              <span
-                className="text-[10px] font-mono font-bold tracking-wider"
-                style={{ color: "var(--color-accent-primary)" }}
+            <div className="flex items-center gap-2">
+              {/* Player count badge */}
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full shrink-0"
+                style={{
+                  background: "var(--color-glass-jade-08)",
+                  border: "1px solid var(--color-glass-jade-12)",
+                }}
               >
-                {room.roomCode}
-              </span>
+                <Users size={12} style={{ color: "var(--color-accent-success)" }} />
+                <span
+                  className="text-[10px] font-mono font-semibold"
+                  style={{ color: "var(--color-accent-success)" }}
+                >
+                  {room.players.length}
+                </span>
+              </div>
+
+              {/* Room code badge */}
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full shrink-0"
+                style={{
+                  background: "var(--color-accent-primary-muted)",
+                  border: "1px solid var(--color-accent-primary-muted)",
+                }}
+              >
+                <Wifi size={12} style={{ color: "var(--color-accent-primary)" }} />
+                <span
+                  className="text-[10px] font-mono font-bold tracking-wider"
+                  style={{ color: "var(--color-accent-primary)" }}
+                >
+                  {room.roomCode}
+                </span>
+              </div>
             </div>
           )}
         </div>
